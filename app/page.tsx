@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import styles from "./page.module.css";
+import styles from "./globals.css";
 
 export default function Home() {
   const [texto, setTexto] = useState("");
