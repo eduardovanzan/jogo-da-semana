@@ -36,3 +36,14 @@
   margin-top: 20px;
   width: 320px;
 }
+
+.textarea {
+  width: 320px;
+  height: 90px;
+  padding: 10px;
+  margin-bottom: 15px;
+
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
