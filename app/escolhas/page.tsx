@@ -56,19 +56,36 @@ export default function EscolhasPage() {
     }
 
     setLoading(true);
-
-    await fetch("/api/escolhas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        usuario_id,
-        jogos: selecionados.map((j) => j.id),
+    setMsg("");
+  
+    try {
+      const res = await fetch("/api/escolhas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          usuario_id,
+          jogos: selecionados.map((j) => j.id),
       }),
     });
 
-    setLoading(false);
+    const data = await res.json();
+
+    console.log("STATUS", res.status)
+    console.log("RESPONSE", data);
+
+    if (!res.ok) {
+      setMsg(`❌ Erro: ${data.error || "Erro desconhecido"}`);
+      return;
+    }
+
     setMsg("✅ Salvo com sucesso!");
+  } catch (err) {
+    console.error("Erro de rede:", err);
+    setMsg("❌ Erro de conexão com o servidor");
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className={styles.container}>
