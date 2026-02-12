@@ -15,7 +15,7 @@ export default function EscolhasPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const usuario_id = "usuario-teste-1";
+  const usuario_id = "1";
 
   // 🔥 busca no servidor
   async function buscar(valor: string) {
