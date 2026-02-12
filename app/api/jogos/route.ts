@@ -1,13 +1,16 @@
 import { supabase } from "@/lib/supabase";
 import { NextResponse } from "next/server";
 
-// GET /api/jogos
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const q = searchParams.get("q") ?? "";
+
   const { data, error } = await supabase
     .from("jogos")
-    .select("name")
-    .eq("ativo", true)
-    .order("nome");
+    .select("id, name")
+    .ilike("name", `%${q}%`)
+    .order("bayesaverage", { ascending: false})
+    .limit(20);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
