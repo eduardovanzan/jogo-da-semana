@@ -1,5 +1,4 @@
-"use client";
-
+import { supabaseServer } from "@/lib/supabase-server";
 import { useState } from "react";
 import styles from "./page.module.css";
 
