@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 type Body = {
@@ -19,12 +19,12 @@ export async function POST(req: Request) {
 
   const unicos = [...new Set(jogos)];
 
-  await supabase
+  await supabaseServer
     .from("votos")
     .delete()
     .eq("usuario_id", usuario_id);
 
-  const { error } = await supabase
+  const { error } = await supabaseServer
     .from("votos")
     .insert(
       unicos.map((jogo_id) => ({
