@@ -1,11 +1,11 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") ?? "";
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseServer
     .from("jogos")
     .select("id, name")
     .ilike("name", `%${q}%`)
