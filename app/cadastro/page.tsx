@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseClient } from "@/lib/supabase-client";
+import { getSupabaseClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
 
 export default function CadastroPage() {
@@ -17,7 +17,8 @@ export default function CadastroPage() {
     setLoading(true);
     setMsg("");
 
-    const { error } = await supabaseClient.auth.signUp({
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.auth.signUp({
       email,
       password: senha,
     });

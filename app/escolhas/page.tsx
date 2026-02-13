@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseClient } from "@/lib/supabase-client";
+import { getSupabaseClient } from "@/lib/supabase-client";
 import styles from "./page.module.css";
 
 type Jogo = {
@@ -59,15 +59,17 @@ export default function EscolhasPage() {
     setMsg("");
 
     try {
-      // 🔐 pega usuário logado
+      const supabase = getSupabaseClient();
+
       const {
         data: { user },
-      } = await supabaseClient.auth.getUser();
+      } = await supabase.auth.getUser();
 
       if (!user) {
         setMsg("❌ Você precisa fazer login primeiro");
         return;
       }
+
 
       const res = await fetch("/api/escolhas", {
         method: "POST",
