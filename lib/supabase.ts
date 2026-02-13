@@ -12,4 +12,4 @@ if (!url || !serviceRoleKey) {
 }
 
 // cliente server-side
-export const supabaseServer = createClient(url, serviceRoleKey);
+export const supabase = createClient(url, serviceRoleKey);
