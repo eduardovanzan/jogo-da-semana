@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { getSupabaseClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
+import { getSupabaseClient } from "@/lib/supabase-client";
+import styles from "../auth.module.css";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,10 +15,12 @@ export default function LoginPage() {
 
   async function login(e: React.FormEvent) {
     e.preventDefault();
+
     setLoading(true);
     setMsg("");
 
     const supabase = getSupabaseClient();
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: senha,
@@ -26,7 +29,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      setMsg("❌ " + error.message);
+      setMsg(error.message);
       return;
     }
 
@@ -34,11 +37,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto" }}>
-      <h1>Login</h1>
+    <div className={styles.wrapper}>
+      <form className={styles.card} onSubmit={login}>
+        <h1 className={styles.title}>Entrar na conta</h1>
 
-      <form onSubmit={login}>
         <input
+          className={styles.input}
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -46,17 +50,22 @@ export default function LoginPage() {
 
         <input
           type="password"
+          className={styles.input}
           placeholder="Senha"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
         />
 
-        <button disabled={loading}>
+        <button className={styles.button} disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
-      </form>
 
-      {msg && <p>{msg}</p>}
+        {msg && <div className={styles.msgError}>{msg}</div>}
+
+        <p className={styles.link} onClick={() => router.push("/cadastro")}>
+          Criar conta
+        </p>
+      </form>
     </div>
   );
 }

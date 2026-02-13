@@ -1,23 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { getSupabaseClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
+import { getSupabaseClient } from "@/lib/supabase-client";
+import styles from "../auth.module.css";
 
 export default function CadastroPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function cadastrar(e: React.FormEvent) {
     e.preventDefault();
+
     setLoading(true);
     setMsg("");
 
     const supabase = getSupabaseClient();
+
     const { error } = await supabase.auth.signUp({
       email,
       password: senha,
@@ -26,20 +29,21 @@ export default function CadastroPage() {
     setLoading(false);
 
     if (error) {
-      setMsg("❌ " + error.message);
+      setMsg(error.message);
       return;
     }
 
-    setMsg("✅ Conta criada! Verifique seu email.");
-    router.push("/login");
+    setMsg("Conta criada! Faça login.");
+    setTimeout(() => router.push("/login"), 1200);
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: "80px auto" }}>
-      <h1>Cadastro</h1>
+    <div className={styles.wrapper}>
+      <form className={styles.card} onSubmit={cadastrar}>
+        <h1 className={styles.title}>Criar conta</h1>
 
-      <form onSubmit={cadastrar}>
         <input
+          className={styles.input}
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -47,17 +51,22 @@ export default function CadastroPage() {
 
         <input
           type="password"
+          className={styles.input}
           placeholder="Senha"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
         />
 
-        <button disabled={loading}>
+        <button className={styles.button} disabled={loading}>
           {loading ? "Criando..." : "Cadastrar"}
         </button>
-      </form>
 
-      {msg && <p>{msg}</p>}
+        {msg && <div className={styles.msgSuccess}>{msg}</div>}
+
+        <p className={styles.link} onClick={() => router.push("/login")}>
+          Já tenho conta
+        </p>
+      </form>
     </div>
   );
 }
