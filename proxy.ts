@@ -21,9 +21,17 @@ export async function proxy(req: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+
+  try {
+    const {
+      data: { user: currentUser },
+    } = await supabase.auth.getUser();
+
+    user = currentUser;
+  } catch (err) {
+    console.error("Proxy auth error:", err);
+  }
 
   const { pathname } = req.nextUrl;
 
@@ -47,14 +55,3 @@ export async function proxy(req: NextRequest) {
 
   return res;
 }
-
-export const config = {
-  matcher: [
-    "/escolhas/:path*",
-    "/votar/:path*",
-    "/resultados/:path*",
-    "/admin/:path*",
-    "/login",
-    "/cadastro",
-  ],
-};
