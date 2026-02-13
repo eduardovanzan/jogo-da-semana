@@ -1,38 +1,62 @@
 "use client";
 
 import { useState } from "react";
+import { supabaseClient } from "@/lib/supabase-client";
+import { useRouter } from "next/navigation";
 
-export default function Home() {
-  const [texto, setTexto] = useState("");
-  const [lista, setLista] = useState<string[]>([]);
+export default function CadastroPage() {
+  const router = useRouter();
 
-  function inserir() {
-    if (!texto.trim()) return;
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
 
-    setLista([...lista, texto]);
-    setTexto("");
+  async function cadastrar(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setMsg("");
+
+    const { error } = await supabaseClient.auth.signUp({
+      email,
+      password: senha,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      setMsg("❌ " + error.message);
+      return;
+    }
+
+    setMsg("✅ Conta criada! Verifique seu email.");
+    router.push("/login");
   }
 
   return (
-    <main className="container">
-      <h1 className="titulo">Jogo da Semana</h1>
+    <div style={{ maxWidth: 400, margin: "80px auto" }}>
+      <h1>Cadastro</h1>
 
-      <textarea
-        className="textarea"
-        value={texto}
-        onChange={(e) => setTexto(e.target.value)}
-        placeholder="Digite o nome do jogo..."
-      />
+      <form onSubmit={cadastrar}>
+        <input
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-      <button className="botao" onClick={inserir}>
-        Inserir
-      </button>
+        <input
+          type="password"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+        />
 
-      <ul className="lista">
-        {lista.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-    </main>
+        <button disabled={loading}>
+          {loading ? "Criando..." : "Cadastrar"}
+        </button>
+      </form>
+
+      {msg && <p>{msg}</p>}
+    </div>
   );
 }

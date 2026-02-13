@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { supabaseClient } from "@/lib/supabase-client";
 import styles from "./page.module.css";
 
 type Jogo = {
@@ -14,8 +15,6 @@ export default function EscolhasPage() {
   const [selecionados, setSelecionados] = useState<Jogo[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
-
-  const usuario_id = "1";
 
   // 🔥 busca no servidor
   async function buscar(valor: string) {
@@ -49,6 +48,7 @@ export default function EscolhasPage() {
     setSelecionados(selecionados.filter((j) => j.id !== id));
   }
 
+  // ✅ AQUI É ONDE PEGAMOS O USER
   async function salvar() {
     if (selecionados.length !== 3) {
       alert("Escolha exatamente 3 jogos");
@@ -57,41 +57,50 @@ export default function EscolhasPage() {
 
     setLoading(true);
     setMsg("");
-  
+
     try {
+      // 🔐 pega usuário logado
+      const {
+        data: { user },
+      } = await supabaseClient.auth.getUser();
+
+      if (!user) {
+        setMsg("❌ Você precisa fazer login primeiro");
+        return;
+      }
+
       const res = await fetch("/api/escolhas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario_id,
+          usuario_id: user.id, // ✅ agora vem do auth
           jogos: selecionados.map((j) => j.id),
-      }),
-    });
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    console.log("STATUS", res.status)
-    console.log("RESPONSE", data);
+      console.log("STATUS", res.status);
+      console.log("RESPONSE", data);
 
-    if (!res.ok) {
-      setMsg(`❌ Erro: ${data.error || "Erro desconhecido"}`);
-      return;
+      if (!res.ok) {
+        setMsg(`❌ Erro: ${data.error || "Erro desconhecido"}`);
+        return;
+      }
+
+      setMsg("✅ Salvo com sucesso!");
+    } catch (err) {
+      console.error("Erro de rede:", err);
+      setMsg("❌ Erro de conexão com o servidor");
+    } finally {
+      setLoading(false);
     }
-
-    setMsg("✅ Salvo com sucesso!");
-  } catch (err) {
-    console.error("Erro de rede:", err);
-    setMsg("❌ Erro de conexão com o servidor");
-  } finally {
-    setLoading(false);
   }
-}
 
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Escolha 3 jogos</h1>
 
-      {/* busca */}
       <input
         className={styles.input}
         placeholder="Digite para buscar..."
@@ -99,7 +108,6 @@ export default function EscolhasPage() {
         onChange={(e) => buscar(e.target.value)}
       />
 
-      {/* resultados */}
       {resultados.length > 0 && (
         <div className={styles.dropdown}>
           {resultados.map((jogo) => (
@@ -114,7 +122,6 @@ export default function EscolhasPage() {
         </div>
       )}
 
-      {/* selecionados */}
       <div className={styles.selecionados}>
         {selecionados.map((jogo) => (
           <span key={jogo.id} className={styles.tag}>
@@ -124,11 +131,7 @@ export default function EscolhasPage() {
         ))}
       </div>
 
-      <button
-        onClick={salvar}
-        disabled={loading}
-        className={styles.saveBtn}
-      >
+      <button onClick={salvar} disabled={loading} className={styles.saveBtn}>
         {loading ? "Salvando..." : "Salvar escolhas"}
       </button>
 
