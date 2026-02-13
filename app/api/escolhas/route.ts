@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabaseServer } from "@/lib/supabase-server";
 import { NextResponse } from "next/server";
 
 type Body = {
@@ -26,13 +26,13 @@ export async function POST(req: Request) {
   }
 
   // apaga antigas
-  await supabase
+  await supabaseServer
     .from("escolhas_semana")
     .delete()
     .eq("usuario_id", usuario_id);
 
   // insere novas
-  const { error } = await supabase
+  const { error } = await supabaseServer
     .from("escolhas_semana")
     .insert(
       jogos.map((jogo_id) => ({
