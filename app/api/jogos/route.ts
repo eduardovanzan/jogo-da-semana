@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     .select("id, name")
     .ilike("name", `%${q}%`)
     .order("bayesaverage", { ascending: false})
-    .limit(20);
+    .limit(10);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
