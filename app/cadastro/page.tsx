@@ -6,6 +6,7 @@ import { getSupabaseClient } from "@/lib/supabase-client";
 import styles from "../auth.module.css";
 
 export default function CadastroPage() {
+  const supabase = getSupabaseClient();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -17,27 +18,53 @@ export default function CadastroPage() {
     e.preventDefault();
 
     setLoading(true);
-    setMsg("");
-
-    const supabase = getSupabaseClient();
+    setMsg("Let me cook...");
 
     const { error } = await supabase.auth.signUp({
       email,
       password: senha,
     });
 
-    setLoading(false);
-
     if (error) {
-      setMsg(error.message);
+      setMsg("❌ Deu merda" + error.message);
       return;
     }
 
-    setMsg("Conta criada! Faça login.");
-    setTimeout(() => router.push("/login"), 1200);
+    setMsg("✅ Deu bom, clã! Verifica seu email.");
+    setTimeout(() => router.push("/login"), 2000);
   }
 
-  return (
+    return (
+    <div className="auth-container">
+      <form className="auth-box" onSubmit={cadastrar}>
+        <h1>Criar Conta</h1>
+
+        <input
+          type="email"
+          placeholder="Seu email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Crie uma senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          required
+        />
+
+        <button type="submit">Cadastrar</button>
+
+        <p className="msg">{msg}</p>
+      </form>
+    </div>
+  );
+}
+
+  
+/*  return (
     <div className={styles.wrapper}>
       <form className={styles.card} onSubmit={cadastrar}>
         <h1 className={styles.title}>Criar conta</h1>
@@ -70,3 +97,4 @@ export default function CadastroPage() {
     </div>
   );
 }
+*/

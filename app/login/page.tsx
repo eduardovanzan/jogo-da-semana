@@ -6,6 +6,7 @@ import { getSupabaseClient } from "@/lib/supabase-client";
 import styles from "../auth.module.css";
 
 export default function LoginPage() {
+  const supabase = getSupabaseClient ();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -17,26 +18,53 @@ export default function LoginPage() {
     e.preventDefault();
 
     setLoading(true);
-    setMsg("");
-
-    const supabase = getSupabaseClient();
+    setMsg("Peraí ansioso...");
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password: senha,
     });
 
-    setLoading(false);
-
     if (error) {
-      setMsg(error.message);
+      setMsg("❌ " + error.message);
       return;
     }
 
+    setMsg("✅ Login realizado!")
     router.push("/");
   }
 
-  return (
+return (
+    <div className="auth-container">
+      <form className="auth-box" onSubmit={login}>
+        <h1>Login</h1>
+
+        <input
+          type="email"
+          placeholder="Seu email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Sua senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          required
+        />
+
+        <button type="submit">Entrar</button>
+
+        <p className="msg">{msg}</p>
+      </form>
+    </div>
+  );
+}
+
+
+/*  return (
     <div className={styles.wrapper}>
       <form className={styles.card} onSubmit={login}>
         <h1 className={styles.title}>Entrar na conta</h1>
@@ -68,4 +96,4 @@ export default function LoginPage() {
       </form>
     </div>
   );
-}
+}*/
