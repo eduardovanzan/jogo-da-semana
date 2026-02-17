@@ -66,12 +66,8 @@ export default function Navbar() {
 
       <div className="flex items-center gap-6 text-white font-medium">
 
-        <Link href="/" className="hover:text-blue-400 transition-colors duration-200">
-          Home
-        </Link>
-
         <Link href="/escolhas" className="hover:text-blue-400 transition-colors duration-200">
-          Escolhas
+          Minhas Escolhas
         </Link>
 
         <Link href="/votar" className="hover:text-blue-400 transition-colors duration-200">
