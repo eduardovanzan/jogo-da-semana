@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 type Jogo = {
   id: number;
-  nome: string;
+  name: string;
 };
 
 export default function VotarPage() {
@@ -118,7 +118,7 @@ export default function VotarPage() {
             <option value="">Selecione um jogo</option>
             {jogos.map((jogo) => (
               <option key={jogo.id} value={jogo.id}>
-                {jogo.nome}
+                {jogo.name}
               </option>
             ))}
           </select>
