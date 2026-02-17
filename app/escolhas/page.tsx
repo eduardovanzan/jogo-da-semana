@@ -6,6 +6,7 @@ import { getSupabaseClient } from "@/lib/supabase-client";
 type Jogo = {
   id: number;
   name: string;
+  bayesaverage:number;
 };
 
 export default function EscolhasPage() {
@@ -135,14 +136,22 @@ return (
         />
 
         {resultados.length > 0 && (
-          <div className="absolute z-10 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+          <div className="absolute z-10 mt-2 w-full bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto animate-fade-in">
             {resultados.map((jogo) => (
               <div
                 key={jogo.id}
                 onClick={() => adicionar(jogo)}
-                className="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition"
+                className="px-4 py-3 hover:bg-indigo-50 cursor-pointer transition border-b last:border-b-0"
               >
-                {jogo.name}
+                <div className="flex justify-between items-center">
+                  <span className="font-medium text-gray-800">
+                    {jogo.name}
+                  </span>
+
+                  <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">
+                    Rank #{jogo.bayesaverage}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -154,7 +163,7 @@ return (
         {selecionados.map((jogo) => (
           <span
             key={jogo.id}
-            className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+            className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium shadow-sm"
           >
             {jogo.name}
             <button
@@ -171,11 +180,11 @@ return (
       <button
         onClick={salvar}
         disabled={loading}
-        className={`w-full py-3 rounded-lg font-semibold text-white transition
+        className={`w-full py-3 rounded-lg font-semibold text-white transition-all duration-200 shadow-md
           ${
             loading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-indigo-600 hover:bg-indigo-700"
+              : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
           }
         `}
       >
@@ -189,7 +198,7 @@ return (
         </p>
       )}
 
-      {/* 🔽 Escolhas Anteriores (AGORA DENTRO DA DIV BRANCA) */}
+      {/* Escolhas Anteriores */}
       {escolhasAnteriores.length > 0 && (
         <div className="pt-6 border-t border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">

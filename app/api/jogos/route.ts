@@ -7,7 +7,7 @@ export async function GET(req: Request) {
 
   const { data, error } = await supabaseServer
     .from("jogos")
-    .select("id, name")
+    .select("id, name, bayesaverage")
     .ilike("name", `%${q}%`)
     .order("bayesaverage", { ascending: false})
     .limit(10);
