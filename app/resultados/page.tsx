@@ -2,6 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { createBrowserClient } from "@supabase/ssr";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 type Resultado = {
   id: number;
@@ -20,16 +29,13 @@ export default function ResultadosPage() {
 
   useEffect(() => {
     async function carregarResultados() {
-      // busca votos com jogo relacionado
       const { data } = await supabase
         .from("votos")
         .select("posicao, jogos(id, name)");
 
       if (!data) return;
 
-      const totalJogos = Math.max(
-        ...data.map((v) => v.posicao)
-      );
+      const totalJogos = Math.max(...data.map((v) => v.posicao));
 
       const mapa: Record<number, Resultado> = {};
 
@@ -70,10 +76,17 @@ export default function ResultadosPage() {
 
   const medalhas = ["🥇", "🥈", "🥉"];
 
+  // 🔥 Dados para o gráfico
+  const dadosGrafico = resultados.map((jogo) => ({
+    nome: jogo.name,
+    pontos: jogo.pontos,
+  }));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-10">
 
+        {/* Cabeçalho */}
         <div className="text-center text-white">
           <h1 className="text-4xl font-bold">
             Resultado da Semana
@@ -83,6 +96,7 @@ export default function ResultadosPage() {
           </p>
         </div>
 
+        {/* Ranking */}
         <div className="bg-white rounded-2xl shadow-2xl p-6 space-y-4">
           {resultados.map((jogo, index) => (
             <div
@@ -104,6 +118,25 @@ export default function ResultadosPage() {
               </span>
             </div>
           ))}
+        </div>
+
+        {/* 📊 GRÁFICO */}
+        <div className="bg-white rounded-2xl shadow-2xl p-6">
+          <h2 className="text-xl font-bold mb-6 text-slate-800">
+            📊 Pontuação por Jogo
+          </h2>
+
+          <div className="w-full h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={dadosGrafico}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="nome" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="pontos" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
       </div>
