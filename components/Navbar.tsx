@@ -45,6 +45,8 @@ export default function Navbar() {
         <div className="nav-links">
           <Link href="/">Home</Link>
           <Link href="/escolhas">Escolhas</Link>
+          <Link href="/votar">Votação</Link>
+          <Link href="/resultados">Resultado</Link>
 
           {!user ? (
             <>

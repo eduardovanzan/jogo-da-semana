@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
-import styles from "./page.module.css";
 
 type Jogo = {
   id: number;
@@ -16,7 +15,6 @@ export default function EscolhasPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  // 🔥 busca no servidor
   async function buscar(valor: string) {
     setQuery(valor);
 
@@ -27,7 +25,6 @@ export default function EscolhasPage() {
 
     const res = await fetch(`/api/jogos?q=${valor}`);
     const data = await res.json();
-
     setResultados(data);
   }
 
@@ -48,7 +45,6 @@ export default function EscolhasPage() {
     setSelecionados(selecionados.filter((j) => j.id !== id));
   }
 
-  // ✅ AQUI É ONDE PEGAMOS O USER
   async function salvar() {
     if (selecionados.length !== 3) {
       alert("Escolha exatamente 3 jogos");
@@ -60,7 +56,6 @@ export default function EscolhasPage() {
 
     try {
       const supabase = getSupabaseClient();
-
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -70,29 +65,24 @@ export default function EscolhasPage() {
         return;
       }
 
-
       const res = await fetch("/api/escolhas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario_id: user.id, // ✅ agora vem do auth
+          usuario_id: user.id,
           jogos: selecionados.map((j) => j.id),
         }),
       });
 
       const data = await res.json();
 
-      console.log("STATUS", res.status);
-      console.log("RESPONSE", data);
-
       if (!res.ok) {
-        setMsg(`❌ Erro: ${data.error || "Erro desconhecido"}`);
+        setMsg(`❌ ${data.error || "Erro desconhecido"}`);
         return;
       }
 
       setMsg("✅ Salvo com sucesso!");
     } catch (err) {
-      console.error("Erro de rede:", err);
       setMsg("❌ Erro de conexão com o servidor");
     } finally {
       setLoading(false);
@@ -100,44 +90,77 @@ export default function EscolhasPage() {
   }
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Escolha 3 jogos</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-6">
+      <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-8 space-y-6">
 
-      <input
-        className={styles.input}
-        placeholder="Digite para buscar..."
-        value={query}
-        onChange={(e) => buscar(e.target.value)}
-      />
+        <h1 className="text-2xl font-bold text-gray-800 text-center">
+          🎮 Escolha 3 Jogos
+        </h1>
 
-      {resultados.length > 0 && (
-        <div className={styles.dropdown}>
-          {resultados.map((jogo) => (
-            <div
+        {/* Campo de busca */}
+        <div className="relative">
+          <input
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            placeholder="Digite para buscar..."
+            value={query}
+            onChange={(e) => buscar(e.target.value)}
+          />
+
+          {resultados.length > 0 && (
+            <div className="absolute z-10 mt-2 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {resultados.map((jogo) => (
+                <div
+                  key={jogo.id}
+                  onClick={() => adicionar(jogo)}
+                  className="px-4 py-2 hover:bg-indigo-50 cursor-pointer transition"
+                >
+                  {jogo.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Selecionados */}
+        <div className="flex flex-wrap gap-2">
+          {selecionados.map((jogo) => (
+            <span
               key={jogo.id}
-              className={styles.option}
-              onClick={() => adicionar(jogo)}
+              className="flex items-center gap-2 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
             >
               {jogo.name}
-            </div>
+              <button
+                onClick={() => remover(jogo.id)}
+                className="text-indigo-500 hover:text-red-500 transition"
+              >
+                ✕
+              </button>
+            </span>
           ))}
         </div>
-      )}
 
-      <div className={styles.selecionados}>
-        {selecionados.map((jogo) => (
-          <span key={jogo.id} className={styles.tag}>
-            {jogo.name}
-            <button onClick={() => remover(jogo.id)}>✕</button>
-          </span>
-        ))}
+        {/* Botão */}
+        <button
+          onClick={salvar}
+          disabled={loading}
+          className={`w-full py-3 rounded-lg font-semibold text-white transition
+            ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            }
+          `}
+        >
+          {loading ? "Salvando..." : "Salvar escolhas"}
+        </button>
+
+        {/* Mensagem */}
+        {msg && (
+          <p className="text-center text-sm font-medium">
+            {msg}
+          </p>
+        )}
       </div>
-
-      <button onClick={salvar} disabled={loading} className={styles.saveBtn}>
-        {loading ? "Salvando..." : "Salvar escolhas"}
-      </button>
-
-      {msg && <p>{msg}</p>}
     </div>
   );
 }
