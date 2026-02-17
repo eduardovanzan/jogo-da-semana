@@ -26,8 +26,9 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/escolhas") ||
+    request.nextUrl.pathname.startsWith("/escolhas");
     request.nextUrl.pathname.startsWith("/admin");
+    request.nextUrl.pathname.startsWith("/votar");
 
   if (isProtectedRoute && !user) {
     const redirectUrl = request.nextUrl.clone();
