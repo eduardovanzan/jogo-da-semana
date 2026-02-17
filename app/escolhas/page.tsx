@@ -6,7 +6,7 @@ import { getSupabaseClient } from "@/lib/supabase-client";
 type Jogo = {
   id: number;
   name: string;
-  bayesaverage:number;
+  rank:number;
 };
 
 export default function EscolhasPage() {
@@ -149,7 +149,7 @@ return (
                   </span>
 
                   <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">
-                    Rank #{jogo.bayesaverage}
+                    Rank #{jogo.rank}
                   </span>
                 </div>
               </div>
