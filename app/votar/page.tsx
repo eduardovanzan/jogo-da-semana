@@ -36,7 +36,7 @@ export default function VotarPage() {
       // Busca jogos escolhidos na semana
       const { data, error } = await supabase
         .from("escolhas_semana")
-        .select("jogo_id, jogos(id, nome)");
+        .select("jogo_id, jogos(id, name)");
 
       if (error) {
         setErro(error.message);
@@ -74,7 +74,7 @@ export default function VotarPage() {
       return;
     }
 
-    const res = await fetch("/api/votos", {
+    const res = await fetch("/api/votar", {
       method: "POST",
       body: JSON.stringify({ ranking }),
     });
