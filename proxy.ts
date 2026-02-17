@@ -1,24 +1,44 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
-export function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+export async function proxy(request: NextRequest) {
+  let response = NextResponse.next({
+    request,
+  });
 
-  const isPrivate =
-    pathname.startsWith("/escolhas") ||
-    pathname.startsWith("/votar") ||
-    pathname.startsWith("/resultados") ||
-    pathname.startsWith("/admin");
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
+      },
+    }
+  );
 
-  // apenas exemplo simples
-  const hasSession = req.cookies.get("sb-access-token");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (isPrivate && !hasSession) {
-    return NextResponse.redirect(new URL("/login", req.url));
+  const isProtectedRoute =
+    request.nextUrl.pathname.startsWith("/escolhas") ||
+    request.nextUrl.pathname.startsWith("/admin");
+
+  if (isProtectedRoute && !user) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {
-  matcher: ["/escolhas/:path*", "/votar/:path*", "/resultados/:path*", "/admin/:path*"],
+  matcher: ["/escolhas/:path*", "/admin/:path*"],
 };
