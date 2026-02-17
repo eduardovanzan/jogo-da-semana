@@ -75,7 +75,7 @@ export default function EscolhasPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: user.id, // ✅ agora vem do auth
+          usuario_id: user.id, // ✅ agora vem do auth
           jogos: selecionados.map((j) => j.id),
         }),
       });
