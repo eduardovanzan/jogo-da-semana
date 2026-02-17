@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getSupabaseClient } from "@/lib/supabase-client";
 
 type Jogo = {
@@ -14,6 +14,34 @@ export default function EscolhasPage() {
   const [selecionados, setSelecionados] = useState<Jogo[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [escolhasAnteriores, setEscolhasAnteriores] = useState<any[]>([]);
+
+  useEffect(() => {
+  async function carregarEscolhas() {
+    const supabase = getSupabaseClient();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data } = await supabase
+      .from("escolhas")
+      .select("jogos(id, name)")
+      .eq("user_id", user.id);
+
+    if (!data) return;
+
+    const jogos = data
+      .map((e: any) => e.jogos)
+      .filter(Boolean);
+
+    setEscolhasAnteriores(jogos);
+  }
+
+  carregarEscolhas();
+}, []);
 
   async function buscar(valor: string) {
     setQuery(valor);
@@ -161,6 +189,24 @@ export default function EscolhasPage() {
           </p>
         )}
       </div>
+      {escolhasAnteriores.length > 0 && (
+  <div className="mt-6 border-t pt-4">
+    <h2 className="text-lg font-semibold text-gray-700 mb-3">
+      🎯 Suas escolhas anteriores
+    </h2>
+
+    <div className="flex flex-wrap gap-2">
+      {escolhasAnteriores.map((jogo) => (
+        <span
+          key={jogo.id}
+          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+        >
+          {jogo.name}
+        </span>
+      ))}
+    </div>
+  </div>
+)}
     </div>
   );
 }
