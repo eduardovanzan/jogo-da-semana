@@ -97,7 +97,7 @@ export default function VotarPage() {
   async function enviarVotacao() {
     const ranking = jogos.map((j) => j.id);
 
-    const res = await fetch("/api/votos", {
+    const res = await fetch("/api/votar", {
       method: "POST",
       body: JSON.stringify({ ranking }),
     });
