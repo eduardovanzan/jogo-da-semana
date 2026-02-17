@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   const [texto, setTexto] = useState("");
   const [lista, setLista] = useState<string[]>([]);
