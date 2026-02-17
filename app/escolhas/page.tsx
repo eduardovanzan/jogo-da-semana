@@ -27,7 +27,7 @@ export default function EscolhasPage() {
     if (!user) return;
 
     const { data } = await supabase
-      .from("escolhas")
+      .from("escolhas_semana")
       .select("jogos(id, name)")
       .eq("user_id", user.id);
 
