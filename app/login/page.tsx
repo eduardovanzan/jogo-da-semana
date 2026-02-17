@@ -25,6 +25,8 @@ export default function LoginPage() {
       password: senha,
     });
 
+    router.refresh();
+
     if (error) {
       setMsg("❌ " + error.message);
       return;
