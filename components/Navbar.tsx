@@ -58,9 +58,10 @@ export default function Navbar() {
 
       <Link
         href="/"
-        className="text-white font-bold text-lg hover:text-blue-400 transition-colors duration-200"
+        className="flex items-center gap-2 text-white font-bold text-lg hover:text-blue-400 transition-colors duration-200"
       >
-        Jogo da Semana ⚽
+        <span className="text-xl">🎲</span>
+        Jogo da Semana
       </Link>
 
       <div className="flex items-center gap-6 text-white font-medium">
