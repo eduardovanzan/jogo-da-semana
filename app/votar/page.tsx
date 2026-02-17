@@ -92,49 +92,63 @@ export default function VotarPage() {
 
   if (loading) return <p>Carregando...</p>;
 
-  return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <h1>Votação da Semana</h1>
+return (
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center p-6">
+    <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl p-8 space-y-6">
+      
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-slate-800">
+          Votação da Semana
+        </h1>
+        <p className="text-slate-500 mt-2">
+          Organize os jogos por ordem de preferência
+        </p>
+      </div>
 
       {erro && (
-        <p style={{ color: "red", marginBottom: 10 }}>
+        <div className="bg-red-100 text-red-700 text-sm p-3 rounded-lg">
           {erro}
-        </p>
+        </div>
       )}
 
-      {ranking.map((valor, index) => (
-        <div key={index} style={{ marginBottom: 15 }}>
-          <label>
-            {index + 1}º lugar:
-          </label>
-          <br />
-          <select
-            value={valor}
-            onChange={(e) =>
-              atualizarRanking(index, e.target.value)
-            }
-            style={{ width: "100%", padding: 8 }}
-          >
-            <option value="">Selecione um jogo</option>
-            {jogos.map((jogo) => (
-              <option key={jogo.id} value={jogo.id}>
-                {jogo.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      ))}
+      <div className="space-y-4">
+        {ranking.map((valor, index) => {
+          const medalhas = ["🥇", "🥈", "🥉"];
+          return (
+            <div key={index} className="space-y-1">
+              <label className="block text-sm font-semibold text-slate-700">
+                {medalhas[index] || `${index + 1}º`} Lugar
+              </label>
+
+              <select
+                value={valor}
+                onChange={(e) =>
+                  atualizarRanking(index, e.target.value)
+                }
+                className="w-full px-4 py-2 rounded-lg border border-slate-300 
+                           focus:outline-none focus:ring-2 focus:ring-blue-500 
+                           focus:border-blue-500 transition"
+              >
+                <option value="">Selecione um jogo</option>
+                {jogos.map((jogo) => (
+                  <option key={jogo.id} value={jogo.id}>
+                    {jogo.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          );
+        })}
+      </div>
 
       <button
         onClick={enviarVotacao}
-        style={{
-          padding: 10,
-          width: "100%",
-          cursor: "pointer",
-        }}
+        className="w-full bg-blue-600 hover:bg-blue-700 
+                   text-white font-semibold py-3 rounded-xl 
+                   transition duration-200 shadow-md hover:shadow-lg"
       >
         Enviar Ranking
       </button>
     </div>
-  );
-}
+  </div>
+)}
