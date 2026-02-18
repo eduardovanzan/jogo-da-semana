@@ -6,7 +6,8 @@ import { getSupabaseClient } from "@/lib/supabase-client";
 type Jogo = {
   id: number;
   name: string;
-  rank:number;
+  rank?:number;
+  is_expansion: boolean;
 };
 
 export default function EscolhasPage() {
@@ -149,7 +150,7 @@ return (
                   </span>
 
                   <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full font-semibold">
-                    Rank #{jogo.rank}
+                    {jogo.is_expansion ? "Expansão" : `Rank #${jogo.rank}`}
                   </span>
                 </div>
               </div>
