@@ -3,36 +3,11 @@
 import { useState } from "react";
 
 export default function Home() {
-  const [texto, setTexto] = useState("");
-  const [lista, setLista] = useState<string[]>([]);
-
-  function inserir() {
-    if (!texto.trim()) return;
-
-    setLista([...lista, texto]);
-    setTexto("");
-  }
-
   return (
-    <main className="container">
-      <h1 className="titulo">Jogo da Semana</h1>
+    <div className="min-h-screen bg-slate-900 flex justify-center">
 
-      <textarea
-        className="textarea"
-        value={texto}
-        onChange={(e) => setTexto(e.target.value)}
-        placeholder="Digite o nome do jogo..."
-      />
-
-      <button className="botao" onClick={inserir}>
-        Inserir
-      </button>
-
-      <ul className="lista">
-        {lista.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-    </main>
+      <div className="w-full max-w-[1600px] min-h-screen bg-cover bg-center bg-no-repeat relative"
+        style={{ backgroundImage: "url('/background.png')" }}></div>
+    </div>
   );
-}
+  }

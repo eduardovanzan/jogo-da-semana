@@ -26,8 +26,8 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/escolhas");
-    request.nextUrl.pathname.startsWith("/admin");
+    request.nextUrl.pathname.startsWith("/escolhas") ||
+    request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/votar");
 
   if (isProtectedRoute && !user) {
@@ -40,5 +40,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/escolhas/:path*", "/admin/:path*"],
+  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*"],
 };
