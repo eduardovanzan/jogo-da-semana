@@ -27,44 +27,50 @@ export default function ResultadosPage() {
   const [resultados, setResultados] = useState<Resultado[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function carregarResultados() {
-      const { data } = await supabase
-        .from("votos")
-        .select("posicao, jogos(id, name)");
+useEffect(() => {
+  async function carregarResultados() {
+    const { data } = await supabase
+      .from("votos")
+      .select("posicao, jogos(id, name)");
 
-      if (!data) return;
+    if (!data) return;
 
-      const totalJogos = Math.max(...data.map((v) => v.posicao));
+    const mapa: Record<number, Resultado> = {};
 
-      const mapa: Record<number, Resultado> = {};
-
-      data.forEach((v: any) => {
-        if (!v.jogos) return;
-
-        const pontos = totalJogos - v.posicao + 1;
-
-        if (!mapa[v.jogos.id]) {
-          mapa[v.jogos.id] = {
-            id: v.jogos.id,
-            name: v.jogos.name,
-            pontos: 0,
-          };
-        }
-
-        mapa[v.jogos.id].pontos += pontos;
-      });
-
-      const rankingFinal = Object.values(mapa).sort(
-        (a, b) => b.pontos - a.pontos
-      );
-
-      setResultados(rankingFinal);
-      setLoading(false);
+    // 🔥 função de pontuação por faixa
+    function calcularPontos(posicao: number) {
+      if (posicao <= 3) return 4;
+      if (posicao <= 6) return 3;
+      if (posicao <= 9) return 2;
+      return 1;
     }
 
-    carregarResultados();
-  }, []);
+    data.forEach((v: any) => {
+      if (!v.jogos) return;
+
+      const pontos = calcularPontos(v.posicao);
+
+      if (!mapa[v.jogos.id]) {
+        mapa[v.jogos.id] = {
+          id: v.jogos.id,
+          name: v.jogos.name,
+          pontos: 0,
+        };
+      }
+
+      mapa[v.jogos.id].pontos += pontos;
+    });
+
+    const rankingFinal = Object.values(mapa).sort(
+      (a, b) => b.pontos - a.pontos
+    );
+
+    setResultados(rankingFinal);
+    setLoading(false);
+  }
+
+  carregarResultados();
+}, []);
 
   if (loading) {
     return (
