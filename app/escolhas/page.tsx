@@ -17,8 +17,9 @@ export default function EscolhasPage() {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
   const [escolhasAnteriores, setEscolhasAnteriores] = useState<any[]>([]);
+  const [escolhasUsuarios, setEscolhasUsuarios] = useState<any[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
   async function carregarEscolhas() {
     const supabase = getSupabaseClient();
 
@@ -26,20 +27,49 @@ export default function EscolhasPage() {
       data: { user },
     } = await supabase.auth.getUser();
 
-    if (!user) return;
+    // 🔹 Suas escolhas
+    if (user) {
+      const { data } = await supabase
+        .from("escolhas_semana")
+        .select("jogos(id, name)")
+        .eq("user_id", user.id);
 
-    const { data } = await supabase
-      .from("escolhas_semana")
-      .select("jogos(id, name)")
-      .eq("user_id", user.id);
+      if (data) {
+        const jogos = data
+          .map((e: any) => e.jogos)
+          .filter(Boolean);
 
-    if (!data) return;
+        setEscolhasAnteriores(jogos);
+      }
+    }
 
-    const jogos = data
-      .map((e: any) => e.jogos)
-      .filter(Boolean);
+    // 🔥 Escolhas de TODOS os usuários (com e-mail)
+    const { data: todas } = await supabase
+      .from("escolhas_com_usuario")
+      .select("*");
 
-    setEscolhasAnteriores(jogos);
+    if (todas) {
+      const mapa: Record<
+        string,
+        { email: string; jogos: { id: number; name: string }[] }
+      > = {};
+
+      todas.forEach((item: any) => {
+        if (!mapa[item.user_id]) {
+          mapa[item.user_id] = {
+            email: item.email,
+            jogos: [],
+          };
+        }
+
+        mapa[item.user_id].jogos.push({
+          id: item.jogo_id,
+          name: item.jogo_name,
+        });
+      });
+
+      setEscolhasUsuarios(Object.values(mapa));
+    }
   }
 
   carregarEscolhas();
@@ -218,6 +248,39 @@ return (
           </div>
         </div>
       )}
+
+      {escolhasUsuarios.length > 0 && (
+  <div className="pt-6 border-t border-gray-200">
+    <h2 className="text-lg font-semibold text-gray-800 mb-4">
+      👥 Escolhas dos usuários
+    </h2>
+
+    {/* Escolhas dos outros usuários */}
+    <div className="space-y-4">
+      {escolhasUsuarios.map((usuario, index) => (
+        <div
+          key={index}
+          className="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm"
+        >
+          <p className="font-semibold text-indigo-600 mb-2">
+            {usuario.email}
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {usuario.jogos.map((jogo: any) => (
+              <span
+                key={jogo.id}
+                className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm font-medium"
+              >
+                {jogo.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
     </div>
   </div>
