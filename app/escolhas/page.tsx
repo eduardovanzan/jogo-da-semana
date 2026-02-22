@@ -18,6 +18,7 @@ export default function EscolhasPage() {
   const [msg, setMsg] = useState("");
   const [escolhasAnteriores, setEscolhasAnteriores] = useState<any[]>([]);
   const [escolhasUsuarios, setEscolhasUsuarios] = useState<any[]>([]);
+  const [semanaAtiva, setSemanaAtiva] = useState<any>(null);
 
 useEffect(() => {
   async function carregarEscolhas() {
@@ -27,12 +28,27 @@ useEffect(() => {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // 🔹 Suas escolhas
+    // 🔵 Buscar semana ativa
+    const { data: semana } = await supabase
+      .from("semanas")
+      .select("*")
+      .eq("ativa", true)
+      .single();
+
+    if (!semana) {
+      setMsg("⚠️ Nenhuma semana ativa no momento.");
+      return;
+    }
+
+    setSemanaAtiva(semana);
+
+    // 🔹 Suas escolhas (APENAS da semana ativa)
     if (user) {
       const { data } = await supabase
         .from("escolhas_semana")
         .select("jogos(id, name)")
-        .eq("user_id", user.id);
+        .eq("user_id", user.id)
+        .eq("semana_id", semana.id);
 
       if (data) {
         const jogos = data
@@ -43,14 +59,15 @@ useEffect(() => {
       }
     }
 
-    // 🔥 Escolhas de TODOS os usuários
+    // 🔥 Escolhas dos outros usuários (APENAS da semana ativa)
     const { data: todas } = await supabase
       .from("escolhas_semana")
       .select(`
         user_id,
         jogos(id, name),
         contas(nome)
-        `);
+      `)
+      .eq("semana_id", semana.id);
 
     if (todas) {
       const mapa: Record<
@@ -137,9 +154,10 @@ useEffect(() => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          usuario_id: user.id,
-          jogos: selecionados.map((j) => j.id),
-        }),
+        usuario_id: user.id,
+        semana_id: semanaAtiva.id,
+        jogos: selecionados.map((j) => j.id),
+      }),
       });
 
       const data = await res.json();
@@ -162,7 +180,7 @@ return (
     <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-8 space-y-6">
 
       <h1 className="text-2xl font-bold text-gray-800 text-center">
-        🎮 Escolhe 3 Jogos Na Moral
+        🎮 Semana {semanaAtiva?.numero || "-"} - Escolhe 3 Jogos Na Moral
       </h1>
 
       {/* Campo de busca */}
