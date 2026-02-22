@@ -43,7 +43,7 @@ useEffect(() => {
       }
     }
 
-    // 🔥 Escolhas de TODOS os usuários (com e-mail)
+    // 🔥 Escolhas de TODOS os usuários (com e-mail) exceto o logado
     const { data: todas } = await supabase
       .from("escolhas_com_usuario")
       .select("*");
@@ -55,6 +55,8 @@ useEffect(() => {
       > = {};
 
       todas.forEach((item: any) => {
+        if (user && item.user_id === user.id) return;
+        
         if (!mapa[item.user_id]) {
           mapa[item.user_id] = {
             email: item.email,
