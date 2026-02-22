@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
 import {
   BarChart,
   Bar,
@@ -19,58 +18,33 @@ type Resultado = {
 };
 
 export default function ResultadosPage() {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   const [resultados, setResultados] = useState<Resultado[]>([]);
+  const [semana, setSemana] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
-useEffect(() => {
-  async function carregarResultados() {
-    const { data } = await supabase
-      .from("votos")
-      .select("posicao, jogos(id, name)");
+  useEffect(() => {
+    async function carregarResultados() {
+      try {
+        const res = await fetch("/api/resultados");
+        const data = await res.json();
 
-    if (!data) return;
+        if (!res.ok) {
+          setErro(data.error);
+          return;
+        }
 
-    const mapa: Record<number, Resultado> = {};
-
-    // 🔥 função de pontuação por faixa
-    function calcularPontos(posicao: number) {
-      if (posicao <= 3) return 4;
-      if (posicao <= 6) return 3;
-      if (posicao <= 9) return 2;
-      return 1;
+        setSemana(data.semana);
+        setResultados(data.resultados);
+      } catch {
+        setErro("Erro ao carregar resultados");
+      } finally {
+        setLoading(false);
+      }
     }
 
-    data.forEach((v: any) => {
-      if (!v.jogos) return;
-
-      const pontos = calcularPontos(v.posicao);
-
-      if (!mapa[v.jogos.id]) {
-        mapa[v.jogos.id] = {
-          id: v.jogos.id,
-          name: v.jogos.name,
-          pontos: 0,
-        };
-      }
-
-      mapa[v.jogos.id].pontos += pontos;
-    });
-
-    const rankingFinal = Object.values(mapa).sort(
-      (a, b) => b.pontos - a.pontos
-    );
-
-    setResultados(rankingFinal);
-    setLoading(false);
-  }
-
-  carregarResultados();
-}, []);
+    carregarResultados();
+  }, []);
 
   if (loading) {
     return (
@@ -80,9 +54,16 @@ useEffect(() => {
     );
   }
 
+  if (erro) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-red-400">
+        {erro}
+      </div>
+    );
+  }
+
   const medalhas = ["🥇", "🥈", "🥉"];
 
-  // 🔥 Dados para o gráfico
   const dadosGrafico = resultados.map((jogo) => ({
     nome: jogo.name,
     pontos: jogo.pontos,
@@ -92,17 +73,15 @@ useEffect(() => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-6">
       <div className="max-w-4xl mx-auto space-y-10">
 
-        {/* Cabeçalho */}
         <div className="text-center text-white">
           <h1 className="text-4xl font-bold">
-            Resultado da Semana
+            Resultado da Semana {semana?.numero}
           </h1>
           <p className="text-slate-300 mt-2">
             Ranking geral baseado nas votações
           </p>
         </div>
 
-        {/* Ranking */}
         <div className="bg-white rounded-2xl shadow-2xl p-6 space-y-4">
           {resultados.map((jogo, index) => (
             <div
@@ -126,7 +105,6 @@ useEffect(() => {
           ))}
         </div>
 
-        {/* 📊 GRÁFICO */}
         <div className="bg-white rounded-2xl shadow-2xl p-6">
           <h2 className="text-xl font-bold mb-6 text-slate-800">
             📊 Pontuação por Jogo
