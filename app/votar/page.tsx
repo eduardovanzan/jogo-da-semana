@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
 
 import {
@@ -56,27 +55,29 @@ function SortableItem({ jogo, index }: { jogo: Jogo; index: number }) {
 }
 
 export default function VotarPage() {
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   const router = useRouter();
   const [jogos, setJogos] = useState<Jogo[]>([]);
   const [erro, setErro] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // 🔥 Agora busca tudo via backend
   useEffect(() => {
     async function carregarJogos() {
-      const { data } = await supabase
-        .from("escolhas_semana")
-        .select("jogo_id, jogos(id, name)");
+      try {
+        const res = await fetch("/api/votar");
+        const data = await res.json();
 
-      const jogosFormatados =
-        data
-          ?.map((item: any) => item.jogos)
-          .filter(Boolean) ?? [];
+        if (!res.ok) {
+          setErro(data.error);
+          return;
+        }
 
-      setJogos(jogosFormatados);
+        setJogos(data.jogos);
+      } catch {
+        setErro("Erro ao carregar jogos");
+      } finally {
+        setLoading(false);
+      }
     }
 
     carregarJogos();
@@ -85,7 +86,9 @@ export default function VotarPage() {
   function handleDragEnd(event: any) {
     const { active, over } = event;
 
-    if (active.id !== over?.id) {
+    if (!over) return;
+
+    if (active.id !== over.id) {
       setJogos((items) => {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
@@ -99,6 +102,7 @@ export default function VotarPage() {
 
     const res = await fetch("/api/votar", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ranking }),
     });
 
@@ -111,6 +115,14 @@ export default function VotarPage() {
 
     alert("Votação enviada com sucesso!");
     router.refresh();
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Carregando...
+      </div>
+    );
   }
 
   return (

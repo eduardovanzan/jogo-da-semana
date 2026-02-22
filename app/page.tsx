@@ -7,7 +7,7 @@ export default function Home() {
     <div className="min-h-screen bg-slate-900 flex justify-center">
 
       <div className="w-full max-w-[1600px] min-h-screen bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url('/background.png')" }}></div>
+        style={{ backgroundImage: "url('/background_lu.png')" }}></div>
     </div>
   );
   }
