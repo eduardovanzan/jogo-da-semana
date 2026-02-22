@@ -162,7 +162,7 @@ return (
     <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl p-8 space-y-6">
 
       <h1 className="text-2xl font-bold text-gray-800 text-center">
-        🎮 Escolha 3 Jogos
+        🎮 Escolhe 3 Jogos Na Moral
       </h1>
 
       {/* Campo de busca */}
@@ -241,7 +241,7 @@ return (
       {escolhasAnteriores.length > 0 && (
         <div className="pt-6 border-t border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            🏆 Suas escolhas anteriores
+            Sua escolha da semana
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -260,7 +260,7 @@ return (
       {escolhasUsuarios.length > 0 && (
   <div className="pt-6 border-t border-gray-200">
     <h2 className="text-lg font-semibold text-gray-800 mb-4">
-      👥 Escolhas dos usuários
+      👥 Escolhas da board gang
     </h2>
 
     {/* Escolhas dos outros usuários */}
