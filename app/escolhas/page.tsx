@@ -43,31 +43,37 @@ useEffect(() => {
       }
     }
 
-    // 🔥 Escolhas de TODOS os usuários (com e-mail) exceto o logado
+    // 🔥 Escolhas de TODOS os usuários
     const { data: todas } = await supabase
-      .from("escolhas_com_usuario")
-      .select("*");
+      .from("escolhas_semana")
+      .select(`
+        user_id,
+        jogos(id, name),
+        contas(nome)
+        `);
 
     if (todas) {
       const mapa: Record<
         string,
-        { email: string; jogos: { id: number; name: string }[] }
+        { nome: string; jogos: { id: number; name: string }[] }
       > = {};
 
       todas.forEach((item: any) => {
         if (user && item.user_id === user.id) return;
-        
+
         if (!mapa[item.user_id]) {
           mapa[item.user_id] = {
-            email: item.email,
+            nome: item.contas?.nome || "Usuário",
             jogos: [],
           };
         }
 
-        mapa[item.user_id].jogos.push({
-          id: item.jogo_id,
-          name: item.jogo_name,
-        });
+        if (item.jogos) {
+          mapa[item.user_id].jogos.push({
+            id: item.jogos.id,
+            name: item.jogos.name,
+          });
+        }
       });
 
       setEscolhasUsuarios(Object.values(mapa));
@@ -265,7 +271,7 @@ return (
           className="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm"
         >
           <p className="font-semibold text-indigo-600 mb-2">
-            {usuario.email}
+            {usuario.nome}
           </p>
 
           <div className="flex flex-wrap gap-2">
