@@ -202,7 +202,7 @@ async function inserir() {
                             <span>{a.jogos.name}</span>
                                 <button
                                 onClick={() => excluir(a.id)}
-                                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs transition">
+                                className="cursor-pointer bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs transition">
                                 Excluir
                                 </button>
                             </div>
