@@ -143,38 +143,52 @@ async function inserir() {
 
             {/* Lista agrupada */}
             <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-8">
-            {Object.entries(
+             {Object.entries(
                 alugueis.reduce((acc, aluguel) => {
-                const numero = aluguel.semanas.numero;
+                    const numero = aluguel.semanas.numero;
 
-                if (!acc[numero]) {
-                    acc[numero] = [];
-                }
+                    if (!acc[numero]) {
+                        acc[numero] = {
+                            data_inicio: aluguel.semanas.data_inicio,
+                            data_fim: aluguel.semanas.data_fim,
+                            alugueis: [],
+                        };
+                    }
 
-                acc[numero].push(aluguel);
-                return acc;
-                }, {} as Record<number, Aluguel[]>)
+                    acc[numero].alugueis.push(aluguel);
+                    return acc;
+                }, {} as Record<
+                    number,
+                    {
+                        data_inicio: string;
+                        data_fim: string;
+                        alugueis: Aluguel[];
+                    }
+                >)
             )
                 .sort((a, b) => Number(b[0]) - Number(a[0]))
-                .map(([numero, lista]) => (
-                <div key={numero} className="space-y-3">
-                <h2 className="text-xl font-semibold border-b border-slate-700 pb-2">
-                    Semana {numero}
-                </h2>
+                .map(([numero, semana]) => (
+                    <div key={numero} className="space-y-3">
+                        <h2 className="text-xl font-semibold border-b border-slate-700 pb-2 flex justify-between">
+                            <span>Semana {numero}</span>
+                            <span className="text-sm text-slate-400">
+                                {new Date(semana.data_inicio).toLocaleDateString("pt-BR")} —{" "}
+                                {new Date(semana.data_fim).toLocaleDateString("pt-BR")}
+                            </span>
+                        </h2>
 
-                {lista.map((a) => (
-                    <div
-                    key={a.id}
-                    className="bg-slate-800 p-4 rounded-xl flex justify-between"
-                    >
-                    <span>{a.jogos.name}</span>
+                        {semana.alugueis.map((a) => (
+                            <div
+                                key={a.id}
+                                className="bg-slate-800 p-4 rounded-xl flex justify-between"
+                            >
+                                <span>{a.jogos.name}</span>
+                            </div>
+                        ))}
                     </div>
                 ))}
-                </div>
-            ))}
             </div>
-
-      </div>
+        </div>
     </div>
   );
 }
