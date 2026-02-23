@@ -166,7 +166,7 @@ export default function VotarPage() {
 
         <button
           onClick={enviarVotacao}
-          className="w-full bg-blue-600 hover:bg-blue-700 
+          className="w-full cursor-pointer bg-blue-600 hover:bg-blue-700 
                      text-white font-semibold py-3 rounded-xl 
                      transition duration-200 shadow-md hover:shadow-lg"
         >
