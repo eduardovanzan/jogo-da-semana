@@ -172,7 +172,7 @@ export default function EscolhasPage() {
         <button
           onClick={salvar}
           disabled={loading}
-          className={`w-full py-3 rounded-lg font-semibold text-white transition-all duration-200 shadow-md
+          className={`w-full cursor-pointer py-3 rounded-lg font-semibold text-white transition-all duration-200 shadow-md
             ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"

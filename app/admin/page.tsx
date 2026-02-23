@@ -85,7 +85,7 @@ export default function AdminPage() {
         <button
           onClick={iniciarNovaSemana}
           disabled={loading}
-          className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+          className="w-full cursor-pointer bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
         >
           ➕ Iniciar Nova Semana
         </button>
@@ -108,7 +108,7 @@ export default function AdminPage() {
               {semana.ativa && (
                 <button
                   onClick={() => encerrarSemana(semana.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
+                  className="cursor-pointer bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition"
                 >
                   Encerrar
                 </button>
