@@ -78,6 +78,10 @@ export default function Navbar() {
           Resultado
         </Link>
 
+        <Link href="/admin" className="hover:text-blue-400 transition-colors duration-200">
+          Admin
+        </Link>
+
         {!user ? (
           <>
             <Link
