@@ -77,6 +77,23 @@ async function inserir() {
     carregarSemanas();
   }, []);
 
+  async function excluir(id: string) {
+  const confirmar = confirm("Tem certeza que deseja excluir este aluguel?");
+  if (!confirmar) return;
+
+  const res = await fetch(`/api/historico/alugados?id=${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const data = await res.json();
+    alert(data.error);
+    return;
+  }
+
+  carregarAlugueis();
+}
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-8">
       <div className="max-w-5xl mx-auto space-y-10">
@@ -179,10 +196,15 @@ async function inserir() {
 
                         {semana.alugueis.map((a) => (
                             <div
-                                key={a.id}
-                                className="bg-slate-800 p-4 rounded-xl flex justify-between"
+                            key={a.id}
+                            className="bg-slate-800 p-4 rounded-xl flex justify-between"
                             >
-                                <span>{a.jogos.name}</span>
+                            <span>{a.jogos.name}</span>
+                                <button
+                                onClick={() => excluir(a.id)}
+                                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded-lg text-xs transition">
+                                Excluir
+                                </button>
                             </div>
                         ))}
                     </div>

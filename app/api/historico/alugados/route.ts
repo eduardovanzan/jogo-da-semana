@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   const semana = searchParams.get("semana");
   const semanasFlag = searchParams.get("semanas");
 
-  // 🔹 1️⃣ Buscar lista de semanas
+  // Buscar lista de semanas
   if (semanasFlag) {
     const { data, error } = await supabase
       .from("semanas")
@@ -44,7 +44,7 @@ export async function GET(req: Request) {
     return NextResponse.json(data);
   }
 
-  // 🔹 2️⃣ Buscar jogos de uma semana específica
+  // Buscar jogos de uma semana específica
   if (semana) {
     const { data, error } = await supabase
       .from("escolhas_semana")
@@ -60,7 +60,7 @@ export async function GET(req: Request) {
     return NextResponse.json(jogos);
   }
 
-  // 🔹 3️⃣ Buscar histórico de alugueis
+  // Buscar histórico de alugueis
   const { data, error } = await supabase
     .from("alugueis")
     .select(`
@@ -100,6 +100,34 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(req: Request) {
+  const supabase = await getSupabase();
+
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
+
+  if (!id) {
+    return NextResponse.json(
+      { error: "ID não informado." },
+      { status: 400 }
+    );
+  }
+
+  const { error } = await supabase
+    .from("alugueis")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({ success: true });
