@@ -154,7 +154,9 @@ async function inserir() {
                 acc[numero].push(aluguel);
                 return acc;
                 }, {} as Record<number, Aluguel[]>)
-            ).map(([numero, lista]) => (
+            )
+                .sort((a, b) => Number(b[0]) - Number(a[0]))
+                .map(([numero, lista]) => (
                 <div key={numero} className="space-y-3">
                 <h2 className="text-xl font-semibold border-b border-slate-700 pb-2">
                     Semana {numero}
