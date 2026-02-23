@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 async function getSupabase() {
-  const cookieStore = await cookies(); // 👈 AGORA É ASYNC
+  const cookieStore = await cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,11 +24,27 @@ async function getSupabase() {
 }
 
 export async function GET(req: Request) {
-  const supabase = await getSupabase(); // 👈 await aqui também
+  const supabase = await getSupabase();
   const { searchParams } = new URL(req.url);
-  const semana = searchParams.get("semana");
 
-  // Buscar jogos da semana
+  const semana = searchParams.get("semana");
+  const semanasFlag = searchParams.get("semanas");
+
+  // 🔹 1️⃣ Buscar lista de semanas
+  if (semanasFlag) {
+    const { data, error } = await supabase
+      .from("semanas")
+      .select("id, numero")
+      .order("numero", { ascending: true });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
+  }
+
+  // 🔹 2️⃣ Buscar jogos de uma semana específica
   if (semana) {
     const { data, error } = await supabase
       .from("escolhas_semana")
@@ -41,10 +57,10 @@ export async function GET(req: Request) {
 
     const jogos = data.map((item: any) => item.jogos);
 
-    return NextResponse.json({ jogos });
+    return NextResponse.json(jogos);
   }
 
-  // Buscar lista de alugueis
+  // 🔹 3️⃣ Buscar histórico de alugueis
   const { data, error } = await supabase
     .from("alugueis")
     .select(`
@@ -58,11 +74,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ alugueis: data });
+  return NextResponse.json(data);
 }
 
 export async function POST(req: Request) {
-  const supabase = await getSupabase(); // 👈 await aqui também
+  const supabase = await getSupabase();
   const body = await req.json();
 
   const { jogo_id, semana_id } = body;

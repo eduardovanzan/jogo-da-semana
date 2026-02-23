@@ -31,23 +31,23 @@ export default function AlugadosPage() {
   const [semanaSelecionada, setSemanaSelecionada] = useState("");
   const [jogoSelecionado, setJogoSelecionado] = useState("");
 
-  async function carregarAlugueis() {
-    const res = await fetch("/api/historico/alugados");
-    const data = await res.json();
-    setAlugueis(data.alugueis || []);
-  }
+async function carregarAlugueis() {
+  const res = await fetch("/api/historico/alugados");
+  const data = await res.json();
+  setAlugueis(data || []);
+}
 
-  async function carregarSemanas() {
-    const res = await fetch("/api/semanas");
-    const data = await res.json();
-    setSemanas(data);
-  }
+async function carregarSemanas() {
+  const res = await fetch("/api/historico/alugados?semanas=true");
+  const data = await res.json();
+  setSemanas(data || []);
+}
 
-  async function carregarJogosDaSemana(semanaId: string) {
-    const res = await fetch(`/api/historico/alugados?semana=${semanaId}`);
-    const data = await res.json();
-    setJogosSemana(data.jogos || []);
-  }
+async function carregarJogosDaSemana(semanaId: string) {
+  const res = await fetch(`/api/historico/alugados?semana=${semanaId}`);
+  const data = await res.json();
+  setJogosSemana(data || []);
+}
 
   async function inserir() {
     if (!semanaSelecionada || !jogoSelecionado) return;
