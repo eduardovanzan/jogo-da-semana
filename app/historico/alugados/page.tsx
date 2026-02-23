@@ -49,21 +49,28 @@ async function carregarJogosDaSemana(semanaId: string) {
   setJogosSemana(data || []);
 }
 
-  async function inserir() {
-    if (!semanaSelecionada || !jogoSelecionado) return;
+async function inserir() {
+  if (!semanaSelecionada || !jogoSelecionado) return;
 
-    await fetch("/api/historico/alugados", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jogo_id: Number(jogoSelecionado),
-        semana_id: semanaSelecionada,
-      }),
-    });
+  const res = await fetch("/api/historico/alugados", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      jogo_id: Number(jogoSelecionado),
+      semana_id: semanaSelecionada,
+    }),
+  });
 
-    setJogoSelecionado("");
-    carregarAlugueis();
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error);
+    return;
   }
+
+  setJogoSelecionado("");
+  carregarAlugueis();
+}
 
   useEffect(() => {
     carregarAlugueis();
@@ -134,20 +141,36 @@ async function carregarJogosDaSemana(semanaId: string) {
 
         </div>
 
-        {/* Lista */}
-        <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-4">
-          {alugueis.map((a) => (
-            <div
-              key={a.id}
-              className="bg-slate-800 p-4 rounded-xl flex justify-between"
-            >
-              <span>{a.jogos.name}</span>
-              <span className="text-sm text-slate-400">
-                Semana {a.semanas.numero}
-              </span>
+            {/* Lista agrupada */}
+            <div className="bg-slate-900 border border-slate-800 p-6 rounded-2xl space-y-8">
+            {Object.entries(
+                alugueis.reduce((acc, aluguel) => {
+                const numero = aluguel.semanas.numero;
+
+                if (!acc[numero]) {
+                    acc[numero] = [];
+                }
+
+                acc[numero].push(aluguel);
+                return acc;
+                }, {} as Record<number, Aluguel[]>)
+            ).map(([numero, lista]) => (
+                <div key={numero} className="space-y-3">
+                <h2 className="text-xl font-semibold border-b border-slate-700 pb-2">
+                    Semana {numero}
+                </h2>
+
+                {lista.map((a) => (
+                    <div
+                    key={a.id}
+                    className="bg-slate-800 p-4 rounded-xl flex justify-between"
+                    >
+                    <span>{a.jogos.name}</span>
+                    </div>
+                ))}
+                </div>
+            ))}
             </div>
-          ))}
-        </div>
 
       </div>
     </div>

@@ -68,7 +68,8 @@ export async function GET(req: Request) {
       jogos(id, name),
       semanas(id, numero, data_inicio, data_fim)
     `)
-    .order("created_at", { ascending: false });
+    .order("numero", { ascending: false, referencedTable: "semanas" })
+    .order("name", { ascending: true, referencedTable: "jogos" });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -91,6 +92,13 @@ export async function POST(req: Request) {
     });
 
   if (error) {
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "Esse jogo já foi alugado nesta semana." },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

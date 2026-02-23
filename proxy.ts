@@ -28,6 +28,7 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute =
     request.nextUrl.pathname.startsWith("/escolhas") ||
     request.nextUrl.pathname.startsWith("/admin") ||
+    request.nextUrl.pathname.startsWith("/historico*") ||
     request.nextUrl.pathname.startsWith("/votar");
 
   if (isProtectedRoute && !user) {
