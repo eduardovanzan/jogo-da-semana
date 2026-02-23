@@ -2,91 +2,80 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export async function POST(req: Request) {
+async function getSupabase() {
+  const cookieStore = await cookies(); // 👈 AGORA É ASYNC
 
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
         },
       },
     }
   );
+}
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export async function GET(req: Request) {
+  const supabase = await getSupabase(); // 👈 await aqui também
+  const { searchParams } = new URL(req.url);
+  const semana = searchParams.get("semana");
 
-  if (!user) {
-    return NextResponse.json(
-      { error: "Não autenticado" },
-      { status: 401 }
-    );
+  // Buscar jogos da semana
+  if (semana) {
+    const { data, error } = await supabase
+      .from("escolhas_semana")
+      .select("jogos(id, name)")
+      .eq("semana_id", semana);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const jogos = data.map((item: any) => item.jogos);
+
+    return NextResponse.json({ jogos });
   }
 
-  const body = await req.json();
-  const { jogos } = body;
-
-  if (!Array.isArray(jogos) || jogos.length !== 3) {
-    return NextResponse.json(
-      { error: "Envie exatamente 3 jogos" },
-      { status: 400 }
-    );
-  }
-
-  const unicos = [...new Set(jogos)];
-  if (unicos.length !== 3) {
-    return NextResponse.json(
-      { error: "Jogos duplicados não permitidos" },
-      { status: 400 }
-    );
-  }
-
-  // 🔎 Busca semana ativa
-  const { data: semanaAtiva, error: semanaError } = await supabase
-    .from("semanas")
-    .select("id")
-    .eq("ativa", true)
-    .single();
-
-  if (semanaError || !semanaAtiva) {
-    return NextResponse.json(
-      { error: "Nenhuma semana ativa encontrada" },
-      { status: 400 }
-    );
-  }
-
-  // 🔥 Deleta apenas escolhas da semana ativa
-  await supabase
-    .from("escolhas_semana")
-    .delete()
-    .eq("user_id", user.id)
-    .eq("semana_id", semanaAtiva.id);
-
-  // 🔥 Insere novas com semana_id
-  const { error } = await supabase
-    .from("escolhas_semana")
-    .insert(
-      jogos.map((jogo_id: number) => ({
-        user_id: user.id,
-        jogo_id,
-        semana_id: semanaAtiva.id,
-      }))
-    );
+  // Buscar lista de alugueis
+  const { data, error } = await supabase
+    .from("alugueis")
+    .select(`
+      id,
+      jogos(id, name),
+      semanas(id, numero, data_inicio, data_fim)
+    `)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ alugueis: data });
+}
+
+export async function POST(req: Request) {
+  const supabase = await getSupabase(); // 👈 await aqui também
+  const body = await req.json();
+
+  const { jogo_id, semana_id } = body;
+
+  const { error } = await supabase
+    .from("alugueis")
+    .insert({
+      jogo_id,
+      semana_id,
+    });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
