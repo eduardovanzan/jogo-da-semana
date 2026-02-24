@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     // Removido o min-h-screen do pai para que ele se ajuste ao tamanho da imagem no mobile
-    <div className="relative w-full bg-black"> 
+    <div className="relative min-h-screen w-full bg-[#11172b]"> 
 
       {/* 📱 IMAGEM MOBILE - Ajuste Dinâmico */}
       <div className="block lg:hidden w-full">
@@ -15,7 +15,7 @@ export default function Home() {
           width={0}
           height={0}
           sizes="100vw"
-          className="w-full h-auto" // Mantém a proporção real sem sobras
+          className="w-full h-auto align-bottom block" // Mantém a proporção real sem sobras
           priority
         />
       </div>
