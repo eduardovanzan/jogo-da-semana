@@ -115,7 +115,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/historico/votos"
+                  href="/historico/vencedores"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Vencedores
@@ -145,14 +145,14 @@ export default function Navbar() {
             >
               <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl">
                 <Link
-                  href="/historico/alugados"
+                  href="/historico/rankpessoal"
                   className="block px-4 py-2 hover:bg-slate-700 rounded-t-xl transition-colors"
                 >
                   Pessoal
                 </Link>
 
                 <Link
-                  href="/historico/votos"
+                  href="/historico/rankgeral"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Geral
