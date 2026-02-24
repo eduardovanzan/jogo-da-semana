@@ -82,48 +82,45 @@ export default function Navbar() {
           </Link>
 
           {/* 🔥 DROPDOWN HISTÓRICO */}
-          <div
-            className="relative"
-            onMouseEnter={() => setHistoricoOpen(true)}
-            onMouseLeave={() => setHistoricoOpen(false)}
-          >
+          <div className="relative group">
             <button className="hover:text-blue-400 transition-colors duration-200">
               Histórico ▾
             </button>
 
             <div
-              className={`
-                absolute right-0 mt-3 w-48
-                bg-slate-800 border border-slate-700
-                rounded-xl shadow-xl
+              className="
+                absolute right-0 top-full pt-3
+                w-48
+                opacity-0 translate-y-2
+                group-hover:opacity-100
+                group-hover:translate-y-0
+                pointer-events-none
+                group-hover:pointer-events-auto
                 transition-all duration-200
-                ${
-                  historicoOpen
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 -translate-y-2 pointer-events-none"
-                }
-              `}
+              "
             >
-              <Link
-                href="/historico/alugados"
-                className="block px-4 py-2 hover:bg-slate-700 rounded-t-xl transition-colors"
-              >
-                Alugados
-              </Link>
+              <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl">
+                <Link
+                  href="/historico/alugados"
+                  className="block px-4 py-2 hover:bg-slate-700 rounded-t-xl transition-colors"
+                >
+                  Alugados
+                </Link>
 
-              <Link
-                href="/historico/votos"
-                className="block px-4 py-2 hover:bg-slate-700 transition-colors"
-              >
-                Votos
-              </Link>
+                <Link
+                  href="/historico/votos"
+                  className="block px-4 py-2 hover:bg-slate-700 transition-colors"
+                >
+                  Votos
+                </Link>
 
-              <Link
-                href="/historico/semanas"
-                className="block px-4 py-2 hover:bg-slate-700 rounded-b-xl transition-colors"
-              >
-                Semanas
-              </Link>
+                <Link
+                  href="/historico/semanas"
+                  className="block px-4 py-2 hover:bg-slate-700 rounded-b-xl transition-colors"
+                >
+                  Semanas
+                </Link>
+              </div>
             </div>
           </div>
 
