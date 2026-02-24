@@ -1,13 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-900 flex justify-center">
+    <div className="relative min-h-screen w-full">
 
-      <div className="w-full max-w-[1600px] min-h-screen bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url('/background_lu.png')" }}></div>
+      {/* 📱 IMAGEM MOBILE */}
+      <Image
+        src="/background_lu_mobile.png"
+        alt="Background Mobile"
+        fill
+        priority
+        className="object-cover lg:hidden"
+      />
+
+      {/* 💻 IMAGEM DESKTOP */}
+      <Image
+        src="/background_lu.png"
+        alt="Background Desktop"
+        fill
+        priority
+        className="hidden lg:block object-cover"
+      />
+
+      {/* Overlay opcional */}
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Conteúdo */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center text-white">
+        {/* conteúdo aqui */}
+      </div>
+
     </div>
   );
-  }
+}
