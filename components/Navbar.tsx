@@ -60,19 +60,19 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-          {/* Botão Mobile */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="md:hidden text-white text-2xl">
-            ☰
-          </button>
-
         <Link
           href="/"
           className="flex items-center gap-2 text-white font-bold text-lg hover:text-blue-400 transition-colors duration-200">
           <span className="text-xl">🎲</span>
           Jogo da Semana
         </Link>
+
+        {/* Botão Mobile */}
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="md:hidden text-white text-2xl">
+            ☰
+          </button>
 
         <div className="hidden md:flex items-center gap-6 text-white font-medium">
 
@@ -196,7 +196,11 @@ export default function Navbar() {
               </button>
             </>
           )}
-          {/* Menu Mobile */}
+          
+        </div>
+      </div>
+
+      {/* Menu Mobile */}
           <div
             className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 
               ${mobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
@@ -272,8 +276,6 @@ export default function Navbar() {
               </div>
             </div>
           </div>
-        </div>
-      </div>
     </nav>
   );
 }
