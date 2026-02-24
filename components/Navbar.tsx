@@ -242,7 +242,19 @@ export default function Navbar() {
                 </Link>
 
                 <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
-                  Histórico
+                  Histórico de Alugados
+                </Link>
+
+                <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
+                  Histórico de Vencedores
+                </Link>
+
+                <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
+                  Boardboxd Pessoal
+                </Link>
+
+                <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
+                  Boardboxd Geral
                 </Link>
 
                 <Link href="/admin" onClick={() => setMobileOpen(false)}>
