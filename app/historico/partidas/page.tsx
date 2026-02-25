@@ -63,8 +63,8 @@ export default function NovaPartida() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12 text-white">
-      <div className="w-full max-w-3xl bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center px-4 py-12 text-white">
+      <div className="w-full max-w-3xl mx-auto backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-8">
 
         <h1 className="text-3xl font-bold mb-8 text-center">
           Registrar Nova Partida
@@ -115,11 +115,11 @@ export default function NovaPartida() {
                     setResultados(newResultados);
                   }}
                   required
-                  className="bg-slate-700/80 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
+                  className="cursor-pointer bg-slate-700/80 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
                 >
                   <option value="">Selecione o jogador</option>
                   {contas.map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.user_id} value={c.user_id}>
                       {c.nome}
                     </option>
                   ))}
@@ -145,7 +145,7 @@ export default function NovaPartida() {
             <button
               type="button"
               onClick={adicionarColocacao}
-              className="bg-blue-600 hover:bg-blue-500 transition p-3 rounded-xl font-semibold shadow-lg shadow-blue-600/30"
+              className="cursor-pointer bg-blue-600 hover:bg-blue-500 transition p-3 rounded-xl font-semibold shadow-lg shadow-blue-600/30"
             >
               + Adicionar Colocação
             </button>
@@ -154,7 +154,7 @@ export default function NovaPartida() {
           {/* Botão salvar */}
           <button
             type="submit"
-            className="bg-green-600 hover:bg-green-500 transition p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/30"
+            className="cursor-pointer bg-green-600 hover:bg-green-500 transition p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/30"
           >
             Salvar Partida
           </button>

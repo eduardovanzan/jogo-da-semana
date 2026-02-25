@@ -115,10 +115,17 @@ export default function Navbar() {
                 </Link>
 
                 <Link
+                  href="/historico/partidas"
+                  className="block px-4 py-2 hover:bg-slate-700 transition-colors"
+                >
+                  Nova Partida
+                </Link>
+
+                <Link
                   href="/historico/vencedores"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
-                  Vencedores
+                  Ranking de Vitórias
                 </Link>
 
               </div>
@@ -245,8 +252,12 @@ export default function Navbar() {
                   Histórico de Alugados
                 </Link>
 
+                <Link href="/historico/partidas" onClick={() => setMobileOpen(false)}>
+                  Registrar Nova Partida
+                </Link>
+
                 <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
-                  Histórico de Vencedores
+                  Ranking de Vitórias
                 </Link>
 
                 <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>

@@ -84,9 +84,12 @@ export async function POST(req: Request) {
       .insert(resultadosInsert);
 
     if (resultadosError) {
-      console.error("Erro ao inserir resultados:", resultadosError);
-      return Response.json({ error: resultadosError.message }, { status: 500 });
-    }
+  console.error("Erro detalhado:", resultadosError);
+  return Response.json(
+    { error: resultadosError.message },
+    { status: 500 }
+  );
+}
 
     return Response.json({ success: true });
   } catch (err: any) {
