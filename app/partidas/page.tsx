@@ -11,7 +11,7 @@ export default function NovaPartida() {
 
   useEffect(() => {
     async function fetchContas() {
-      const res = await fetch("/api/contas"); // você deve já ter algo similar
+      const res = await fetch("/api/partidas"); // você deve já ter algo similar
       const data = await res.json();
       setContas(data);
     }
