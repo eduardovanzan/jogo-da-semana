@@ -113,11 +113,11 @@ export default function NovaPartida() {
           </div>
         ))}
 
-        {resultados.length < 4 && (
+        {resultados.length < 6 && (
           <button
             type="button"
             onClick={adicionarColocacao}
-            className="bg-blue-600 p-2 rounded"
+            className="cursor-pointer bg-blue-600 p-2 rounded"
           >
             + Adicionar Colocação
           </button>
@@ -125,7 +125,7 @@ export default function NovaPartida() {
 
         <button
           type="submit"
-          className="bg-green-600 p-3 rounded font-bold"
+          className="cursor-pointer bg-green-600 p-3 rounded font-bold"
         >
           Salvar Partida
         </button>
