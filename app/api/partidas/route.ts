@@ -20,17 +20,20 @@ export async function GET() {
       }
     );
 
-    const { data, error } = await supabase
-      .from("contas")
-      .select("user_id, nome")
-      .order("nome", { ascending: true });
+    const { data: contas } = await supabase
+        .from("contas")
+        .select("user_id, nome")
+        .order(("nome"), {ascending:true});
 
-    if (error) {
-      console.error("Erro Supabase GET:", error);
-      return Response.json({ error: error.message }, { status: 500 });
-    }
+    const { data: jogos } = await supabase
+        .from("jogos")
+        .select("id, name")
+        .order("name");
 
-    return Response.json(data ?? []);
+    return Response.json({
+        contas: contas ?? [],
+        jogos: jogos ?? [],
+    });
   } catch (err: any) {
     console.error("Erro geral GET:", err);
     return Response.json({ error: "Erro interno" }, { status: 500 });

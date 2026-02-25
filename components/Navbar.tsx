@@ -122,7 +122,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/historico/vencedores"
+                  href="/historico/partidas"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Ranking de Vitórias
@@ -152,14 +152,14 @@ export default function Navbar() {
             >
               <div className="bg-slate-800 border border-slate-700 rounded-xl shadow-xl">
                 <Link
-                  href="/historico/rankpessoal"
+                  href="/historico/partidas"
                   className="block px-4 py-2 hover:bg-slate-700 rounded-t-xl transition-colors"
                 >
                   Pessoal
                 </Link>
 
                 <Link
-                  href="/historico/rankgeral"
+                  href="/historico/partidas"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Geral

@@ -4,25 +4,29 @@ import { useEffect, useState } from "react";
 
 export default function NovaPartida() {
   const [contas, setContas] = useState<any[]>([]);
+  const [jogos, setJogos] = useState<any[]>([]);
   const [dataPartida, setDataPartida] = useState("");
+  const [jogoId, setJogoId] = useState("");
   const [resultados, setResultados] = useState([
     { colocacao: 1, conta_id: "", pontuacao: "" },
   ]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    async function fetchContas() {
+    async function fetchDados() {
       try {
         const res = await fetch("/api/partidas");
         if (!res.ok) return;
 
         const data = await res.json();
-        setContas(Array.isArray(data) ? data : []);
+        if (data?.contas) setContas(data.contas);
+        if (data?.jogos) setJogos(data.jogos);
       } catch (err) {
-        console.error("Erro:", err);
+        console.error("Erro ao buscar dados:", err);
       }
     }
 
-    fetchContas();
+    fetchDados();
   }, []);
 
   function adicionarColocacao() {
@@ -50,16 +54,44 @@ export default function NovaPartida() {
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    await fetch("/api/partidas", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        data_partida: dataPartida,
-        resultados,
-      }),
-    });
+    if (!jogoId) {
+      alert("Selecione um jogo!");
+      return;
+    }
 
-    alert("Partida registrada!");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/partidas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data_partida: dataPartida,
+          jogo_id: jogoId,
+          resultados,
+        }),
+      });
+
+      if (!res.ok) {
+        const erro = await res.text();
+        console.error("Erro:", erro);
+        alert("Erro ao registrar partida.");
+        return;
+      }
+
+      alert("Partida registrada com sucesso!");
+
+      // Resetar formulário
+      setDataPartida("");
+      setJogoId("");
+      setResultados([{ colocacao: 1, conta_id: "", pontuacao: "" }]);
+
+    } catch (err) {
+      console.error("Erro:", err);
+      alert("Erro inesperado.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -71,6 +103,24 @@ export default function NovaPartida() {
         </h1>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+
+          {/* Jogo */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-gray-300">Jogo</label>
+            <select
+              value={jogoId}
+              onChange={(e) => setJogoId(e.target.value)}
+              required
+              className="cursor-pointer bg-slate-800/70 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
+            >
+              <option value="">Selecione o jogo</option>
+              {jogos.map((j) => (
+                <option key={j.id} value={j.id}>
+                  {j.nome}
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Data */}
           <div className="flex flex-col gap-2">
@@ -154,9 +204,10 @@ export default function NovaPartida() {
           {/* Botão salvar */}
           <button
             type="submit"
-            className="cursor-pointer bg-green-600 hover:bg-green-500 transition p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/30"
+            disabled={loading}
+            className="cursor-pointer bg-green-600 hover:bg-green-500 transition p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/30 disabled:opacity-50"
           >
-            Salvar Partida
+            {loading ? "Salvando..." : "Salvar Partida"}
           </button>
         </form>
       </div>
