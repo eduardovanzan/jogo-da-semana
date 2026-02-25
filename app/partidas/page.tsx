@@ -10,13 +10,30 @@ export default function NovaPartida() {
   ]);
 
   useEffect(() => {
-    async function fetchContas() {
-      const res = await fetch("/api/partidas"); // você deve já ter algo similar
+  async function fetchContas() {
+    try {
+      const res = await fetch("/api/partidas");
+
+      if (!res.ok) {
+        console.error("Erro ao buscar contas");
+        return;
+      }
+
       const data = await res.json();
-      setContas(data);
+
+      if (Array.isArray(data)) {
+        setContas(data);
+      } else {
+        setContas([]);
+      }
+    } catch (err) {
+      console.error("Erro:", err);
+      setContas([]);
     }
-    fetchContas();
-  }, []);
+  }
+
+  fetchContas();
+}, []);
 
   function adicionarColocacao() {
     if (resultados.length < 4) {
