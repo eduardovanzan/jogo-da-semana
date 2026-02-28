@@ -43,7 +43,14 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { data_partida, resultados } = body;
+    const { data_partida, resultados, jogo_id } = body;
+
+    if (!jogo_id) {
+      return Response.json(
+        { error: "Jogo é obrigatório" },
+        { status: 400 }
+      );
+    }
 
     const cookieStore = await cookies();
 
@@ -62,16 +69,22 @@ export async function POST(req: Request) {
       }
     );
 
-    // 1️⃣ Criar partida
+    // 1️⃣ Criar partida com jogo_id
     const { data: partida, error: partidaError } = await supabase
       .from("partidas")
-      .insert({ data_partida })
+      .insert({
+        data_partida,
+        jogo_id,
+      })
       .select()
       .single();
 
     if (partidaError) {
       console.error("Erro ao criar partida:", partidaError);
-      return Response.json({ error: partidaError.message }, { status: 500 });
+      return Response.json(
+        { error: partidaError.message },
+        { status: 500 }
+      );
     }
 
     // 2️⃣ Inserir resultados
@@ -88,10 +101,14 @@ export async function POST(req: Request) {
 
     if (resultadosError) {
       console.error("Erro ao inserir resultados:", resultadosError);
-      return Response.json({ error: resultadosError.message }, { status: 500 });
+      return Response.json(
+        { error: resultadosError.message },
+        { status: 500 }
+      );
     }
 
     return Response.json({ success: true });
+
   } catch (err: any) {
     console.error("Erro geral POST:", err);
     return Response.json({ error: "Erro interno" }, { status: 500 });

@@ -4,23 +4,38 @@ import { useEffect, useState } from "react";
 
 export default function NovaPartida() {
   const [contas, setContas] = useState<any[]>([]);
-  const [jogos, setJogos] = useState<any[]>([]);
   const [dataPartida, setDataPartida] = useState("");
   const [jogoId, setJogoId] = useState("");
   const [resultados, setResultados] = useState([
     { colocacao: 1, conta_id: "", pontuacao: "" },
   ]);
   const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState("");
+  const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
+  const [jogoSelecionado, setJogoSelecionado] = useState<any | null>(null);
+
+    async function buscarJogo(valor: string) {
+      setQuery(valor);
+
+      if (valor.length < 2) {
+        setResultadosBusca([]);
+        return;
+      }
+
+      const res = await fetch(`/api/jogos?q=${valor}`);
+      const data = await res.json();
+
+      setResultadosBusca(data ?? []);
+    }
 
   useEffect(() => {
-    async function fetchDados() {
+      async function fetchDados() {
       try {
         const res = await fetch("/api/partidas");
         if (!res.ok) return;
 
         const data = await res.json();
         if (data?.contas) setContas(data.contas);
-        if (data?.jogos) setJogos(data.jogos);
       } catch (err) {
         console.error("Erro ao buscar dados:", err);
       }
@@ -105,21 +120,65 @@ export default function NovaPartida() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
           {/* Jogo */}
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 relative">
             <label className="text-sm text-gray-300">Jogo</label>
-            <select
-              value={jogoId}
-              onChange={(e) => setJogoId(e.target.value)}
-              required
-              className="cursor-pointer bg-slate-800/70 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
-            >
-              <option value="">Selecione o jogo</option>
-              {jogos.map((j) => (
-                <option key={j.id} value={j.id}>
-                  {j.nome}
-                </option>
-              ))}
-            </select>
+
+            {/* Campo de busca */}
+            <input
+              type="text"
+              placeholder="Digite para buscar o jogo..."
+              value={query}
+              onChange={(e) => buscarJogo(e.target.value)}
+              className="bg-slate-800/70 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
+            />
+
+            {/* Dropdown */}
+            {resultadosBusca.length > 0 && (
+              <div className="absolute top-full mt-2 w-full bg-slate-900 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto z-20">
+                {resultadosBusca.map((jogo) => (
+                  <div
+                    key={jogo.id}
+                    onClick={() => {
+                      setJogoId(jogo.id);
+                      setJogoSelecionado(jogo);
+                      setQuery(jogo.name);
+                      setResultadosBusca([]);
+                    }}
+                    className="px-4 py-3 hover:bg-blue-600/20 cursor-pointer border-b border-slate-700 last:border-b-0"
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium text-white">
+                        {jogo.name}
+                      </span>
+
+                      <span className="text-xs bg-blue-600/30 text-blue-300 px-2 py-1 rounded-full font-semibold">
+                        {jogo.is_expansion
+                          ? "Expansão"
+                          : `Rank #${jogo.rank ?? "-"}`}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Jogo selecionado */}
+            {jogoSelecionado && (
+              <div className="mt-2 flex items-center gap-2 bg-green-600/20 text-green-300 px-3 py-2 rounded-lg text-sm">
+                🎮 {jogoSelecionado.name}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setJogoSelecionado(null);
+                    setJogoId("");
+                    setQuery("");
+                  }}
+                  className="text-red-400 hover:text-red-300"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Data */}
