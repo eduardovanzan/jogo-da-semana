@@ -122,7 +122,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/historico/partidas"
+                  href="/ranking"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Ranking de Vitórias

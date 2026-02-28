@@ -30,7 +30,7 @@ export default function CadastroPage() {
       return;
     }
 
-    setMsg("✅ Deu bom, clã! Verifica seu email.");
+    setMsg("✅ Deu bom!");
     setTimeout(() => router.push("/login"), 2000);
   }
 

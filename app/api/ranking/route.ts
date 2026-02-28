@@ -1,50 +1,66 @@
-import { supabaseServer } from "@/lib/supabase-server";
-import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-type VotoJoin = {
-  jogo_id: number;
-  jogos: {
-    id: number;
-    nome: string;
-  }[]; // ← ARRAY (importante)
-};
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const jogo_id = searchParams.get("jogo_id");
 
-export async function GET() {
-  const { data, error } = await supabaseServer
-    .from("votos")
-    .select(`
-      jogo_id,
-      jogos ( id, nome )
-    `);
+  const cookieStore = await cookies();
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (cookiesToSet) => {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
+  let rankingQuery;
+
+  if (jogo_id) {
+    rankingQuery = supabase
+      .from("ranking_usuarios")
+      .select("*")
+      .eq("jogo_id", jogo_id);
+  } else {
+    rankingQuery = supabase
+      .from("ranking_usuarios_total")
+      .select("*");
   }
 
-  const contagem: Record<number, { nome: string; votos: number }> = {};
+  const { data: ranking, error } = await rankingQuery
+    .order("primeiros", { ascending: false })
+    .order("segundos", { ascending: false })
+    .order("terceiros", { ascending: false })
+    .order("total_partidas", { ascending: false });
 
-  (data as VotoJoin[] | null)?.forEach((v) => {
-    const jogo = v.jogos?.[0]; // ← pega primeiro item do array
+  if (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
 
-    if (!jogo) return;
+  // 🔥 Buscar apenas jogos que possuem partidas
+  const { data: jogos } = await supabase
+    .from("partidas")
+    .select("jogo_id, jogos ( id, name )")
+    .not("jogo_id", "is", null);
 
-    const id = jogo.id;
+  const jogosUnicos =
+    jogos?.reduce((acc: any[], curr: any) => {
+      if (!acc.find((j) => j.id === curr.jogos.id)) {
+        acc.push(curr.jogos);
+      }
+      return acc;
+    }, []) ?? [];
 
-    if (!contagem[id]) {
-      contagem[id] = {
-        nome: jogo.nome,
-        votos: 0,
-      };
-    }
-
-    contagem[id].votos++;
-  });
-
-  const ranking = Object.values(contagem)
-    .sort((a, b) => b.votos - a.votos);
-
-  return NextResponse.json({
-    ranking,
-    top2: ranking.slice(0, 2),
+  return Response.json({
+    ranking: ranking ?? [],
+    jogos: jogosUnicos,
   });
 }
