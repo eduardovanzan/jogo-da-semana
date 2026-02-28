@@ -13,6 +13,7 @@ export default function NovaPartida() {
   const [query, setQuery] = useState("");
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
   const [jogoSelecionado, setJogoSelecionado] = useState<any | null>(null);
+  const [duracaoMinutos, setDuracaoMinutos] = useState("");
 
     async function buscarJogo(valor: string) {
       setQuery(valor);
@@ -83,6 +84,7 @@ export default function NovaPartida() {
         body: JSON.stringify({
           data_partida: dataPartida,
           jogo_id: jogoId,
+          duracao_minutos: Number(duracaoMinutos),
           resultados,
         }),
       });
@@ -98,6 +100,7 @@ export default function NovaPartida() {
 
       // Resetar formulário
       setDataPartida("");
+      setDuracaoMinutos("");
       setJogoId("");
       setResultados([{ colocacao: 1, conta_id: "", pontuacao: "" }]);
 
@@ -188,6 +191,22 @@ export default function NovaPartida() {
               type="date"
               value={dataPartida}
               onChange={(e) => setDataPartida(e.target.value)}
+              required
+              className="bg-slate-800/70 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
+            />
+          </div>
+
+          {/* Duração */}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-gray-300">
+              Duração da Partida (minutos)
+            </label>
+            <input
+              type="number"
+              min="1"
+              placeholder="Ex: 90"
+              value={duracaoMinutos}
+              onChange={(e) => setDuracaoMinutos(e.target.value)}
               required
               className="bg-slate-800/70 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 transition p-3 rounded-lg outline-none"
             />

@@ -43,11 +43,18 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { data_partida, resultados, jogo_id } = body;
+    const { data_partida, duracao_minutos, resultados, jogo_id } = body;
 
     if (!jogo_id) {
       return Response.json(
         { error: "Jogo é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    if (!duracao_minutos || Number(duracao_minutos) <= 0) {
+      return Response.json(
+        { error: "Duração da partida é obrigatória" },
         { status: 400 }
       );
     }
@@ -75,6 +82,7 @@ export async function POST(req: Request) {
       .insert({
         data_partida,
         jogo_id,
+        duracao_minutos: Number(duracao_minutos),
       })
       .select()
       .single();
