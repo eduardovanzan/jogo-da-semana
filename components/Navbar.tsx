@@ -256,7 +256,7 @@ export default function Navbar() {
                   Registrar Nova Partida
                 </Link>
 
-                <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
+                <Link href="/ranking" onClick={() => setMobileOpen(false)}>
                   Ranking de Vitórias
                 </Link>
 
