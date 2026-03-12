@@ -214,22 +214,38 @@ export default function NovaPartida() {
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2">
             <label className="text-sm text-gray-300">
-              Partida Cooperativa
+              Tipo de Partida
             </label>
 
-            <button
-              type="button"
-              onClick={() => setModoCooperativo(!modoCooperativo)}
-              className={`cursor-pointer px-4 py-2 rounded-lg font-semibold transition ${
-                modoCooperativo
-                  ? "bg-green-600 hover:bg-green-500"
-                  : "bg-slate-700 hover:bg-slate-600"
-              }`}
-            >
-              {modoCooperativo ? "Cooperativo" : "Competitivo"}
-            </button>
+            <div className="flex bg-slate-800 border border-slate-600 rounded-xl overflow-hidden w-fit">
+              
+              <button
+                type="button"
+                onClick={() => setModoCooperativo(false)}
+                className={`px-5 py-2 font-semibold transition ${
+                  !modoCooperativo
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-300 hover:bg-slate-700"
+                }`}
+              >
+                Competitivo
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModoCooperativo(true)}
+                className={`px-5 py-2 font-semibold transition ${
+                  modoCooperativo
+                    ? "bg-green-600 text-white"
+                    : "text-gray-300 hover:bg-slate-700"
+                }`}
+              >
+                Cooperativo
+              </button>
+
+            </div>
           </div>
 
           {/* Colocações */}
