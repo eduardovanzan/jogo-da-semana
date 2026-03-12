@@ -26,12 +26,7 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const isProtectedRoute =
-    request.nextUrl.pathname.startsWith("/escolhas") ||
-    request.nextUrl.pathname.startsWith("/admin") ||
-    request.nextUrl.pathname.startsWith("/resultados") ||
-    request.nextUrl.pathname.startsWith("/historico") ||
-    request.nextUrl.pathname.startsWith("/ranking") ||
-    request.nextUrl.pathname.startsWith("/votar");
+    request.nextUrl.pathname.startsWith("/");
 
   if (isProtectedRoute && !user) {
     const redirectUrl = request.nextUrl.clone();
@@ -43,5 +38,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*", "/historico/:path*", "/ranking/:path*", "/resultados/:path*"],
+  matcher: ["/:path*"],
 };
