@@ -29,7 +29,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/escolhas") ||
     request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/resultados") ||
-    request.nextUrl.pathname.startsWith("/historico/alugados") ||
+    request.nextUrl.pathname.startsWith("/historico") ||
     request.nextUrl.pathname.startsWith("/ranking") ||
     request.nextUrl.pathname.startsWith("/votar");
 
@@ -43,5 +43,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*"],
+  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*", "/historico/:path*", "/ranking/:path*"],
 };
