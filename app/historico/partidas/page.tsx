@@ -86,6 +86,7 @@ export default function NovaPartida() {
           data_partida: dataPartida,
           jogo_id: jogoId,
           duracao_minutos: Number(duracaoMinutos),
+          cooperativo: modoCooperativo,
           resultados: modoCooperativo ? [] : resultados,
         }),
       });

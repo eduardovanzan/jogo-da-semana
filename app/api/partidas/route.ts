@@ -43,7 +43,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { data_partida, duracao_minutos, resultados = [], jogo_id } = body;
+    const { data_partida, duracao_minutos, resultados = [], jogo_id, cooperativo } = body;
 
     if (!jogo_id) {
       return Response.json(
@@ -83,6 +83,7 @@ export async function POST(req: Request) {
         data_partida,
         jogo_id,
         duracao_minutos: Number(duracao_minutos),
+        cooperativo: cooperativo ?? false,
       })
       .select()
       .single();
@@ -96,7 +97,7 @@ export async function POST(req: Request) {
     }
 
     // 2️⃣ Inserir resultados
-    if (resultados.length > 0 ){
+    if (!cooperativo && resultados.length > 0 ){
       const resultadosInsert = resultados.map((r: any) => ({
         partida_id: partida.id,
         conta_id: r.conta_id,
