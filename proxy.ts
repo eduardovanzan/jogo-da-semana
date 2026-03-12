@@ -29,7 +29,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/escolhas") ||
     request.nextUrl.pathname.startsWith("/admin") ||
     request.nextUrl.pathname.startsWith("/resultados") ||
-    request.nextUrl.pathname.startsWith("/historico") ||
+    request.nextUrl.pathname.startsWith("/historico/alugados") ||
     request.nextUrl.pathname.startsWith("/ranking") ||
     request.nextUrl.pathname.startsWith("/votar");
 
