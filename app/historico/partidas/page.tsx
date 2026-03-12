@@ -222,7 +222,7 @@ export default function NovaPartida() {
             <button
               type="button"
               onClick={() => setModoCooperativo(!modoCooperativo)}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
+              className={`cursor-pointer px-4 py-2 rounded-lg font-semibold transition ${
                 modoCooperativo
                   ? "bg-green-600 hover:bg-green-500"
                   : "bg-slate-700 hover:bg-slate-600"
