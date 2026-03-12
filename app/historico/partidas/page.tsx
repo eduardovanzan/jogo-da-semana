@@ -14,6 +14,7 @@ export default function NovaPartida() {
   const [resultadosBusca, setResultadosBusca] = useState<any[]>([]);
   const [jogoSelecionado, setJogoSelecionado] = useState<any | null>(null);
   const [duracaoMinutos, setDuracaoMinutos] = useState("");
+  const [modoCooperativo, setModoCooperativo] = useState(false);
 
     async function buscarJogo(valor: string) {
       setQuery(valor);
@@ -85,7 +86,7 @@ export default function NovaPartida() {
           data_partida: dataPartida,
           jogo_id: jogoId,
           duracao_minutos: Number(duracaoMinutos),
-          resultados,
+          resultados: modoCooperativo ? [] : resultados,
         }),
       });
 
@@ -212,7 +213,26 @@ export default function NovaPartida() {
             />
           </div>
 
+          <div className="flex items-center gap-3">
+            <label className="text-sm text-gray-300">
+              Partida Cooperativa
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setModoCooperativo(!modoCooperativo)}
+              className={`px-4 py-2 rounded-lg font-semibold transition ${
+                modoCooperativo
+                  ? "bg-green-600 hover:bg-green-500"
+                  : "bg-slate-700 hover:bg-slate-600"
+              }`}
+            >
+              {modoCooperativo ? "Cooperativo" : "Competitivo"}
+            </button>
+          </div>
+
           {/* Colocações */}
+          {!modoCooperativo && (
           <div className="flex flex-col gap-6">
             {resultados.map((r, index) => (
               <div
@@ -267,9 +287,10 @@ export default function NovaPartida() {
               </div>
             ))}
           </div>
+          )}
 
           {/* Botão adicionar */}
-          {resultados.length < 6 && (
+          {!modoCooperativo && resultados.length < 6 && (
             <button
               type="button"
               onClick={adicionarColocacao}

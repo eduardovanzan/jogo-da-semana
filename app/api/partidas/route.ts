@@ -43,7 +43,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { data_partida, duracao_minutos, resultados, jogo_id } = body;
+    const { data_partida, duracao_minutos, resultados = [], jogo_id } = body;
 
     if (!jogo_id) {
       return Response.json(
@@ -96,23 +96,25 @@ export async function POST(req: Request) {
     }
 
     // 2️⃣ Inserir resultados
-    const resultadosInsert = resultados.map((r: any) => ({
-      partida_id: partida.id,
-      conta_id: r.conta_id,
-      colocacao: r.colocacao,
-      pontuacao: r.pontuacao || null,
-    }));
+    if (resultados.length > 0 ){
+      const resultadosInsert = resultados.map((r: any) => ({
+        partida_id: partida.id,
+        conta_id: r.conta_id,
+        colocacao: r.colocacao,
+        pontuacao: r.pontuacao || null,
+      }));
 
-    const { error: resultadosError } = await supabase
-      .from("resultados_partida")
-      .insert(resultadosInsert);
+      const { error: resultadosError } = await supabase
+        .from("resultados_partida")
+        .insert(resultadosInsert);
 
-    if (resultadosError) {
-      console.error("Erro ao inserir resultados:", resultadosError);
-      return Response.json(
-        { error: resultadosError.message },
-        { status: 500 }
-      );
+      if (resultadosError) {
+        console.error("Erro ao inserir resultados:", resultadosError);
+        return Response.json(
+          { error: resultadosError.message },
+          { status: 500 }
+        );
+      }
     }
 
     return Response.json({ success: true });
