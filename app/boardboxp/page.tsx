@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
+  DragOverlay,
   PointerSensor,
   useSensor,
   useSensors
@@ -12,23 +13,21 @@ import {
 
 import {
   SortableContext,
-  verticalListSortingStrategy,
   arrayMove,
+  verticalListSortingStrategy,
   useSortable
 } from "@dnd-kit/sortable";
 
 import { CSS } from "@dnd-kit/utilities";
 
-function medalha(index:number){
-
-  if(index===0) return "🥇";
-  if(index===1) return "🥈";
-  if(index===2) return "🥉";
-
-  return `#${index+1}`;
+function medalha(i:number){
+  if(i===0) return "🥇";
+  if(i===1) return "🥈";
+  if(i===2) return "🥉";
+  return `#${i+1}`;
 }
 
-function SortableItem({jogo,index,remover}:any){
+function Card({jogo,index,dragHandle=false,remover}:any){
 
   const {
     attributes,
@@ -38,7 +37,7 @@ function SortableItem({jogo,index,remover}:any){
     transition
   } = useSortable({id:jogo.id});
 
-  const style = {
+  const style={
     transform:CSS.Transform.toString(transform),
     transition
   };
@@ -51,70 +50,61 @@ function SortableItem({jogo,index,remover}:any){
       className="flex items-center gap-4 bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-blue-500/40 transition group"
     >
 
-      <div className="text-2xl w-10 font-bold text-blue-400">
-        {medalha(index)}
-      </div>
+      {index!==undefined && (
+        <div className="text-2xl font-bold w-10 text-blue-400">
+          {medalha(index)}
+        </div>
+      )}
 
       <div className="flex-1 font-semibold">
         {jogo.name}
       </div>
 
-      <button
-        onClick={()=>remover(jogo)}
-        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition"
-      >
-        ✕
-      </button>
+      {remover && (
+        <button
+          onClick={()=>remover(jogo)}
+          className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300"
+        >
+          ✕
+        </button>
+      )}
 
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab text-gray-400 hover:text-white text-xl ml-2"
+        className="cursor-grab text-gray-400 hover:text-white text-xl"
       >
         ☰
       </div>
 
     </div>
-
   );
 }
 
-export default function BoardBoxRanking(){
+export default function BoardBoxP(){
 
-  const [ranking,setRanking] = useState<any[]>([]);
-  const [novos,setNovos] = useState<any[]>([]);
-  const [loading,setLoading] = useState(true);
-  const [saving,setSaving] = useState(false);
+  const [ranking,setRanking]=useState<any[]>([]);
+  const [novos,setNovos]=useState<any[]>([]);
+  const [loading,setLoading]=useState(true);
+  const [activeItem,setActiveItem]=useState<any>(null);
 
-  const sensors = useSensors(
+  const sensors=useSensors(
     useSensor(PointerSensor)
   );
 
-    useEffect(()=>{
-        carregar();
-    },[]);
-
-    useEffect(()=>{
-
-    if(loading) return;
-
-    const t = setTimeout(()=>{
-        salvarAutomatico();
-    },800);
-
-    return ()=>clearTimeout(t);
-
-    },[ranking]);
+  useEffect(()=>{
+    carregar();
+  },[]);
 
   async function carregar(){
 
-    const res = await fetch("/api/boardboxp");
-    const data = await res.json();
+    const res=await fetch("/api/boardboxp");
+    const data=await res.json();
 
-    const jogos = data.jogos;
-    const rankingSalvo = data.ranking;
+    const jogos=data.jogos;
+    const rankingSalvo=data.ranking;
 
-    const mapa = new Map(
+    const mapa=new Map(
       rankingSalvo.map((r:any)=>[r.jogo_id,r.posicao])
     );
 
@@ -142,53 +132,19 @@ export default function BoardBoxRanking(){
     setLoading(false);
   }
 
-  function removerDoRanking(jogo:any){
+  useEffect(()=>{
 
-    setRanking(ranking.filter(j=>j.id!==jogo.id));
-    setNovos([...novos,jogo]);
-  }
+    if(loading) return;
 
-    function adicionarAoRanking(jogo:any){
+    const t=setTimeout(()=>{
+      salvar();
+    },800);
 
-    setNovos(prev=>prev.filter(n=>n.id!==jogo.id));
-    setRanking(prev=>[...prev,jogo]);
+    return()=>clearTimeout(t);
 
-    }
+  },[ranking]);
 
-    function handleDragEnd(event:any){
-
-    const {active,over} = event;
-
-    if(!over) return;
-
-    const activeId = active.id;
-    const overId = over.id;
-
-    const activeRanking = ranking.find(j=>j.id===activeId);
-    const activeNovo = novos.find(j=>j.id===activeId);
-
-    // mover dentro do ranking
-    if(activeRanking && ranking.find(j=>j.id===overId)){
-
-        const oldIndex = ranking.findIndex(j=>j.id===activeId);
-        const newIndex = ranking.findIndex(j=>j.id===overId);
-
-        setRanking(arrayMove(ranking,oldIndex,newIndex));
-        return;
-    }
-
-    // mover de novos para ranking
-    if(activeNovo){
-
-        setNovos(novos.filter(j=>j.id!==activeId));
-        setRanking([...ranking,activeNovo]);
-    }
-
-    }
-
-  async function salvarAutomatico(){
-
-    setSaving(true);
+  async function salvar(){
 
     await fetch("/api/boardboxp",{
       method:"POST",
@@ -198,17 +154,63 @@ export default function BoardBoxRanking(){
       body:JSON.stringify({ranking})
     });
 
-    setSaving(false);
+  }
+
+  function remover(jogo:any){
+
+    setRanking(prev=>prev.filter(j=>j.id!==jogo.id));
+    setNovos(prev=>[...prev,jogo]);
+
+  }
+
+  function handleDragStart(event:any){
+
+    const {active}=event;
+
+    const item=
+      ranking.find(j=>j.id===active.id) ||
+      novos.find(j=>j.id===active.id);
+
+    setActiveItem(item);
+
+  }
+
+  function handleDragEnd(event:any){
+
+    const {active,over}=event;
+
+    setActiveItem(null);
+
+    if(!over) return;
+
+    const activeId=active.id;
+    const overId=over.id;
+
+    const activeRanking=ranking.find(j=>j.id===activeId);
+    const activeNovo=novos.find(j=>j.id===activeId);
+
+    // reorder ranking
+    if(activeRanking && ranking.find(j=>j.id===overId)){
+
+      const oldIndex=ranking.findIndex(j=>j.id===activeId);
+      const newIndex=ranking.findIndex(j=>j.id===overId);
+
+      setRanking(arrayMove(ranking,oldIndex,newIndex));
+      return;
+    }
+
+    // move novo -> ranking
+    if(activeNovo){
+
+      setNovos(prev=>prev.filter(j=>j.id!==activeId));
+      setRanking(prev=>[...prev,activeNovo]);
+
+    }
+
   }
 
   if(loading){
-
-    return(
-      <div className="text-white p-10">
-        Carregando ranking...
-      </div>
-    );
-
+    return <div className="p-10 text-white">Carregando...</div>;
   }
 
   return(
@@ -217,65 +219,32 @@ export default function BoardBoxRanking(){
 
     <div className="max-w-3xl mx-auto">
 
-      <div className="flex justify-between items-center mb-10">
-
-        <h1 className="text-3xl font-bold">
-          Meu Ranking de Jogos
-        </h1>
-
-        {saving && (
-          <span className="text-sm text-gray-400">
-            salvando...
-          </span>
-        )}
-
-      </div>
-
-      {novos.length>0 && (
-
-        <div className="mb-10">
-
-          <h2 className="text-lg font-semibold mb-4 text-yellow-400">
-            Jogos ainda não ranqueados
-          </h2>
-
-          <div className="flex flex-wrap gap-3">
-
-            {novos.map((j)=>(
-              <button
-                key={j.id}
-                onClick={()=>adicionarAoRanking(j)}
-                className="cursor-pointer bg-yellow-600 hover:bg-yellow-500 transition px-4 py-2 rounded-lg font-medium shadow"
-              >
-                {j.name}
-              </button>
-            ))}
-
-          </div>
-
-        </div>
-
-      )}
+      <h1 className="text-3xl font-bold mb-10">
+        Meu Ranking de Jogos
+      </h1>
 
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
 
+        {/* ranking */}
+
         <SortableContext
-          items={ranking.map(r=>r.id)}
+          items={ranking.map(j=>j.id)}
           strategy={verticalListSortingStrategy}
         >
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 mb-10">
 
             {ranking.map((jogo,index)=>(
-              <SortableItem
+              <Card
                 key={jogo.id}
                 jogo={jogo}
                 index={index}
-                remover={removerDoRanking}
+                remover={remover}
               />
             ))}
 
@@ -283,20 +252,53 @@ export default function BoardBoxRanking(){
 
         </SortableContext>
 
+        {/* jogos novos */}
+
+        {novos.length>0 && (
+
+          <div>
+
+            <h2 className="text-yellow-400 font-semibold mb-4">
+              Jogos ainda não ranqueados
+            </h2>
+
+            <SortableContext
+              items={novos.map(j=>j.id)}
+              strategy={verticalListSortingStrategy}
+            >
+
+              <div className="flex flex-col gap-3">
+
+                {novos.map((jogo)=>(
+                  <Card
+                    key={jogo.id}
+                    jogo={jogo}
+                  />
+                ))}
+
+              </div>
+
+            </SortableContext>
+
+          </div>
+
+        )}
+
+        <DragOverlay>
+
+          {activeItem && (
+            <div className="bg-slate-700 p-4 rounded-xl shadow-xl">
+              {activeItem.name}
+            </div>
+          )}
+
+        </DragOverlay>
+
       </DndContext>
-
-      {ranking.length===0 && (
-
-        <div className="text-center text-gray-400 mt-10">
-          Adicione jogos ao ranking
-        </div>
-
-      )}
 
     </div>
 
   </div>
 
   );
-
 }
