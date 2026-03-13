@@ -5,68 +5,104 @@ import { useEffect, useState } from "react";
 import {
   DndContext,
   closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors
 } from "@dnd-kit/core";
 
 import {
-  arrayMove,
   SortableContext,
   verticalListSortingStrategy,
+  arrayMove,
+  useSortable
 } from "@dnd-kit/sortable";
 
-import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-function SortableItem({ jogo, index }: any) {
+function medalha(index:number){
+
+  if(index===0) return "🥇";
+  if(index===1) return "🥈";
+  if(index===2) return "🥉";
+
+  return `#${index+1}`;
+}
+
+function SortableItem({jogo,index,remover}:any){
 
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
-    transition,
-  } = useSortable({ id: jogo.id });
+    transition
+  } = useSortable({id:jogo.id});
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform:CSS.Transform.toString(transform),
+    transition
   };
 
-  return (
+  return(
+
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-4 bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-blue-500/50 transition"
+      className="flex items-center gap-4 bg-slate-800 border border-slate-700 rounded-xl p-4 hover:border-blue-500/40 transition group"
     >
-      <div className="text-2xl font-bold text-blue-400 w-10">
-        #{index + 1}
+
+      <div className="text-2xl w-10 font-bold text-blue-400">
+        {medalha(index)}
       </div>
 
       <div className="flex-1 font-semibold">
         {jogo.name}
       </div>
 
+      <button
+        onClick={()=>remover(jogo)}
+        className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition"
+      >
+        ✕
+      </button>
+
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab text-gray-400 hover:text-white text-xl"
+        className="cursor-grab text-gray-400 hover:text-white text-xl ml-2"
       >
         ☰
       </div>
+
     </div>
+
   );
 }
 
-export default function BoardBoxRanking() {
+export default function BoardBoxRanking(){
 
-  const [ranking, setRanking] = useState<any[]>([]);
-  const [novos, setNovos] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [ranking,setRanking] = useState<any[]>([]);
+  const [novos,setNovos] = useState<any[]>([]);
+  const [loading,setLoading] = useState(true);
+  const [saving,setSaving] = useState(false);
 
-  useEffect(() => {
+  const sensors = useSensors(
+    useSensor(PointerSensor)
+  );
+
+  useEffect(()=>{
     carregar();
-  }, []);
+  },[]);
 
-  async function carregar() {
+  useEffect(()=>{
+
+    if(!loading){
+      salvarAutomatico();
+    }
+
+  },[ranking]);
+
+  async function carregar(){
 
     const res = await fetch("/api/boardboxp");
     const data = await res.json();
@@ -75,26 +111,26 @@ export default function BoardBoxRanking() {
     const rankingSalvo = data.ranking;
 
     const mapa = new Map(
-      rankingSalvo.map((r: any) => [r.jogo_id, r.posicao])
+      rankingSalvo.map((r:any)=>[r.jogo_id,r.posicao])
     );
 
-    const ranqueados: any[] = [];
-    const naoRanqueados: any[] = [];
+    const ranqueados:any[]=[];
+    const naoRanqueados:any[]=[];
 
-    jogos.forEach((j: any) => {
+    jogos.forEach((j:any)=>{
 
-      if (mapa.has(j.id)) {
+      if(mapa.has(j.id)){
         ranqueados.push({
           ...j,
-          posicao: mapa.get(j.id),
+          posicao:mapa.get(j.id)
         });
-      } else {
+      }else{
         naoRanqueados.push(j);
       }
 
     });
 
-    ranqueados.sort((a, b) => a.posicao - b.posicao);
+    ranqueados.sort((a,b)=>a.posicao-b.posicao);
 
     setRanking(ranqueados);
     setNovos(naoRanqueados);
@@ -102,130 +138,150 @@ export default function BoardBoxRanking() {
     setLoading(false);
   }
 
-  function handleDragEnd(event: any) {
+  function removerDoRanking(jogo:any){
 
-    const { active, over } = event;
-
-    if (!over) return;
-
-    if (active.id !== over.id) {
-
-      const oldIndex = ranking.findIndex(
-        (i) => i.id === active.id
-      );
-
-      const newIndex = ranking.findIndex(
-        (i) => i.id === over.id
-      );
-
-      setRanking(arrayMove(ranking, oldIndex, newIndex));
-    }
+    setRanking(ranking.filter(j=>j.id!==jogo.id));
+    setNovos([...novos,jogo]);
   }
 
-  async function salvar() {
+  function adicionarAoRanking(jogo:any){
 
-    await fetch("/api/boardboxp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    setNovos(novos.filter(n=>n.id!==jogo.id));
+    setRanking([...ranking,jogo]);
+  }
+
+  function handleDragEnd(event:any){
+
+    const {active,over} = event;
+
+    if(!over) return;
+
+    if(active.id!==over.id){
+
+      const oldIndex = ranking.findIndex(i=>i.id===active.id);
+      const newIndex = ranking.findIndex(i=>i.id===over.id);
+
+      if(oldIndex!==-1 && newIndex!==-1){
+
+        setRanking(arrayMove(ranking,oldIndex,newIndex));
+
+      }
+
+    }
+
+  }
+
+  async function salvarAutomatico(){
+
+    setSaving(true);
+
+    await fetch("/api/boardboxp",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
       },
-      body: JSON.stringify({ ranking }),
+      body:JSON.stringify({ranking})
     });
 
-    alert("Ranking salvo!");
+    setSaving(false);
   }
 
-  if (loading) {
-    return (
+  if(loading){
+
+    return(
       <div className="text-white p-10">
         Carregando ranking...
       </div>
     );
+
   }
 
-  return (
+  return(
 
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white px-6 py-12">
+  <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white px-6 py-12">
 
-      <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto">
 
-        <h1 className="text-3xl font-bold mb-10 text-center">
+      <div className="flex justify-between items-center mb-10">
+
+        <h1 className="text-3xl font-bold">
           Meu Ranking de Jogos
         </h1>
 
-        {/* Jogos novos */}
-
-        {novos.length > 0 && (
-
-          <div className="mb-10">
-
-            <h2 className="text-lg font-semibold mb-4 text-yellow-400">
-              Jogos ainda não ranqueados
-            </h2>
-
-            <div className="flex flex-wrap gap-3">
-
-              {novos.map((j) => (
-
-                <button
-                  key={j.id}
-                  onClick={() => {
-                    setRanking([...ranking, j]);
-                    setNovos(
-                      novos.filter((n) => n.id !== j.id)
-                    );
-                  }}
-                  className="cursor-pointer bg-yellow-600 hover:bg-yellow-500 transition px-4 py-2 rounded-lg font-medium"
-                >
-                  {j.name}
-                </button>
-
-              ))}
-
-            </div>
-
-          </div>
+        {saving && (
+          <span className="text-sm text-gray-400">
+            salvando...
+          </span>
         )}
-
-        {/* Ranking */}
-
-        <div className="flex flex-col gap-3">
-
-          <DndContext
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-
-            <SortableContext
-              items={ranking.map((r) => r.id)}
-              strategy={verticalListSortingStrategy}
-            >
-
-              {ranking.map((jogo, index) => (
-                <SortableItem
-                  key={jogo.id}
-                  jogo={jogo}
-                  index={index}
-                />
-              ))}
-
-            </SortableContext>
-
-          </DndContext>
-
-        </div>
-
-        {/* salvar */}
-
-        <button
-          onClick={salvar}
-          className="cursor-pointer mt-10 w-full bg-green-600 hover:bg-green-500 transition p-4 rounded-xl font-bold text-lg shadow-lg shadow-green-600/30"
-        >
-          Salvar Ranking
-        </button>
 
       </div>
 
+      {novos.length>0 && (
+
+        <div className="mb-10">
+
+          <h2 className="text-lg font-semibold mb-4 text-yellow-400">
+            Jogos ainda não ranqueados
+          </h2>
+
+          <div className="flex flex-wrap gap-3">
+
+            {novos.map((j)=>(
+              <button
+                key={j.id}
+                onClick={()=>adicionarAoRanking(j)}
+                className="cursor-pointer bg-yellow-600 hover:bg-yellow-500 transition px-4 py-2 rounded-lg font-medium shadow"
+              >
+                {j.name}
+              </button>
+            ))}
+
+          </div>
+
+        </div>
+
+      )}
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+
+        <SortableContext
+          items={ranking.map(r=>r.id)}
+          strategy={verticalListSortingStrategy}
+        >
+
+          <div className="flex flex-col gap-3">
+
+            {ranking.map((jogo,index)=>(
+              <SortableItem
+                key={jogo.id}
+                jogo={jogo}
+                index={index}
+                remover={removerDoRanking}
+              />
+            ))}
+
+          </div>
+
+        </SortableContext>
+
+      </DndContext>
+
+      {ranking.length===0 && (
+
+        <div className="text-center text-gray-400 mt-10">
+          Adicione jogos ao ranking
+        </div>
+
+      )}
+
     </div>
+
+  </div>
+
   );
+
 }
