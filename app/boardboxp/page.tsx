@@ -259,7 +259,7 @@ export default function BoardBoxP(){
           <div>
 
             <h2 className="text-yellow-400 font-semibold mb-4">
-              Jogos ainda não ranqueados
+              Jogos ainda não ranqueados (arraste para cima para adicionar à lista)
             </h2>
 
             <SortableContext
