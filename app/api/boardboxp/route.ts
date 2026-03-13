@@ -49,7 +49,7 @@ export async function GET() {
 export async function POST(req:Request){
 
   const body = await req.json();
-  const { ranking } = body;
+  const ranking = body.ranking ?? [];
 
   const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
@@ -72,12 +72,16 @@ export async function POST(req:Request){
     posicao:index+1
   }));
 
-  const { error } = await supabase
-    .from("ranking_jogos_usuario")
-    .insert(inserts);
+  if(inserts.length > 0){
 
-  if(error){
-    return Response.json({error:error.message},{status:500});
+    const { error } = await supabase
+      .from("ranking_jogos_usuario")
+      .insert(inserts);
+
+    if(error){
+      return Response.json({error:error.message},{status:500});
+    }
+
   }
 
   return Response.json({success:true});
