@@ -31,6 +31,7 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/resultados") ||
     request.nextUrl.pathname.startsWith("/historico") ||
     request.nextUrl.pathname.startsWith("/ranking") ||
+    request.nextUrl.pathname.startsWith("/boardbox") ||
     request.nextUrl.pathname.startsWith("/votar");
 
   if (isProtectedRoute && !user) {
@@ -43,5 +44,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*", "/historico/:path*", "/ranking/:path*", "/resultados/:path*"],
+  matcher: ["/escolhas/:path*", "/admin/:path*", "/votar/:path*", "/historico/:path*", "/ranking/:path*", "/resultados/:path*", "/boardbox/:path*"],
 };
