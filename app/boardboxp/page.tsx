@@ -90,17 +90,21 @@ export default function BoardBoxRanking(){
     useSensor(PointerSensor)
   );
 
-  useEffect(()=>{
-    carregar();
-  },[]);
+    useEffect(()=>{
+        carregar();
+    },[]);
 
-  useEffect(()=>{
+    useEffect(()=>{
 
-    if(!loading){
-      salvarAutomatico();
-    }
+    if(loading) return;
 
-  },[ranking]);
+    const t = setTimeout(()=>{
+        salvarAutomatico();
+    },800);
+
+    return ()=>clearTimeout(t);
+
+    },[ranking]);
 
   async function carregar(){
 
@@ -144,32 +148,43 @@ export default function BoardBoxRanking(){
     setNovos([...novos,jogo]);
   }
 
-  function adicionarAoRanking(jogo:any){
+    function adicionarAoRanking(jogo:any){
 
-    setNovos(novos.filter(n=>n.id!==jogo.id));
-    setRanking([...ranking,jogo]);
-  }
+    setNovos(prev=>prev.filter(n=>n.id!==jogo.id));
+    setRanking(prev=>[...prev,jogo]);
 
-  function handleDragEnd(event:any){
+    }
+
+    function handleDragEnd(event:any){
 
     const {active,over} = event;
 
     if(!over) return;
 
-    if(active.id!==over.id){
+    const activeId = active.id;
+    const overId = over.id;
 
-      const oldIndex = ranking.findIndex(i=>i.id===active.id);
-      const newIndex = ranking.findIndex(i=>i.id===over.id);
+    const activeRanking = ranking.find(j=>j.id===activeId);
+    const activeNovo = novos.find(j=>j.id===activeId);
 
-      if(oldIndex!==-1 && newIndex!==-1){
+    // mover dentro do ranking
+    if(activeRanking && ranking.find(j=>j.id===overId)){
+
+        const oldIndex = ranking.findIndex(j=>j.id===activeId);
+        const newIndex = ranking.findIndex(j=>j.id===overId);
 
         setRanking(arrayMove(ranking,oldIndex,newIndex));
-
-      }
-
+        return;
     }
 
-  }
+    // mover de novos para ranking
+    if(activeNovo){
+
+        setNovos(novos.filter(j=>j.id!==activeId));
+        setRanking([...ranking,activeNovo]);
+    }
+
+    }
 
   async function salvarAutomatico(){
 

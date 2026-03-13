@@ -66,7 +66,9 @@ export async function POST(req:Request){
     .delete()
     .eq("user_id", user.id);
 
-  const inserts = ranking.map((jogo:any,index:number)=>({
+  const inserts = ranking
+  .filter((j:any)=>j && j.id)
+  .map((jogo:any,index:number)=>({
     user_id:user.id,
     jogo_id:jogo.id,
     posicao:index+1
