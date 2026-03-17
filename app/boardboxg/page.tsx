@@ -44,7 +44,7 @@ export default function RankingGlobal() {
       <div className="max-w-3xl mx-auto">
 
         <h1 className="text-3xl font-bold mb-10">
-          Ranking Global dos Jogos
+          Ranking Geral dos Jogos
         </h1>
 
         <div className="flex flex-col gap-4">
