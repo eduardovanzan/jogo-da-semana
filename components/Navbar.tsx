@@ -159,7 +159,7 @@ export default function Navbar() {
                 </Link>
 
                 <Link
-                  href="/historico/partidas"
+                  href="/boardboxg"
                   className="block px-4 py-2 hover:bg-slate-700 transition-colors"
                 >
                   Geral
@@ -264,7 +264,7 @@ export default function Navbar() {
                   Boardboxd Pessoal
                 </Link>
 
-                <Link href="/historico/alugados" onClick={() => setMobileOpen(false)}>
+                <Link href="/boardboxg" onClick={() => setMobileOpen(false)}>
                   Boardboxd Geral
                 </Link>
 
