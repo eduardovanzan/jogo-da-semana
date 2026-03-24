@@ -128,6 +128,13 @@ export default function Navbar() {
                   Ranking de Vitórias
                 </Link>
 
+                <Link
+                  href="/estatisticas"
+                  className="block px-4 py-2 hover:bg-slate-700 transition-colors"
+                >
+                  Estatísticas
+                </Link>
+
               </div>
             </div>
           </div>
