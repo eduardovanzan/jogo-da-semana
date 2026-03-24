@@ -275,6 +275,10 @@ export default function Navbar() {
                   Boardboxd Geral
                 </Link>
 
+                <Link href="/estatisticas" onClick={() => setMobileOpen(false)}>
+                  Estatísticas
+                </Link>
+
                 <Link href="/admin" onClick={() => setMobileOpen(false)}>
                   Admin
                 </Link>

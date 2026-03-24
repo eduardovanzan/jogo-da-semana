@@ -1,5 +1,6 @@
 "use client";
 
+import { Content } from "next/font/google";
 import { useEffect, useState } from "react";
 
 import {
@@ -13,6 +14,15 @@ import {
 const TABS = [
   { key: "tempo", label: "Horas Jogadas" },
   { key: "partidas", label: "Partidas Jogadas" }
+];
+
+const COLORS = [
+  "#3b82f6", // azul
+  "#22c55e", // verde
+  "#f59e0b", // amarelo
+  "#ef4444", // vermelho
+  "#a855f7", // roxo
+  "#64748b", // cinza (Outros)
 ];
 
 export default function Estatisticas() {
@@ -43,6 +53,12 @@ export default function Estatisticas() {
   }
 
   const totalPages = Math.ceil(total / 10);
+
+  const colorMap: Record<string, string> = {};
+
+  grafico.forEach((item, index) => {
+  colorMap[item.nome] = COLORS[index % COLORS.length];
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white px-6 py-12">
@@ -92,9 +108,18 @@ export default function Estatisticas() {
                     key={j.id}
                     className="flex justify-between bg-slate-800 p-4 rounded-lg border border-slate-700"
                   >
+                    <div className="flex items-center gap-2">
+                    <div
+                        className="w-5 h-5 rounded-full"
+                        style={{
+                        backgroundColor: colorMap[j.nome] || "#334155" // fallback
+                        }}
+                    />
+
                     <span>
-                      {((page - 1) * 10) + i + 1}. {j.nome}
+                        {((page - 1) * 10) + i + 1}. {j.nome}
                     </span>
+                    </div>
 
                     <span className="text-blue-400 font-semibold">
                       {tipo === "tempo"
@@ -147,17 +172,21 @@ export default function Estatisticas() {
 
                 <PieChart>
 
-                  <Pie
-                    data={grafico}
-                    dataKey="valor"
-                    nameKey="nome"
-                    outerRadius={100}
-                    label
-                  >
-                    {grafico.map((_, i) => (
-                      <Cell key={i} />
+                    <Pie
+                        data={grafico}
+                        dataKey="valor"
+                        nameKey="nome"
+                        outerRadius={100}
+                        innerRadius={50} // 🔥 vira donut (melhor UX)
+                        paddingAngle={3}
+                        >
+                        {grafico.map((_, index) => (
+                            <Cell
+                            key={index}
+                            fill={COLORS[index % COLORS.length]}
+                            />
                     ))}
-                  </Pie>
+                    </Pie>
 
                   <Tooltip />
 
